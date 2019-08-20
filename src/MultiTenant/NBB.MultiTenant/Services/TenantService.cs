@@ -48,12 +48,7 @@ namespace NBB.MultiTenant.Services
                 {
                     return tenant;
                 }
-            }
-
-            if (tenant == null)
-            {
-                throw new UnauthorizedAccessException("Could not identify you as a tenant.");
-            }
+            }           
 
             return null;
         }

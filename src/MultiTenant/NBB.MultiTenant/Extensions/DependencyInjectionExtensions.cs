@@ -76,12 +76,12 @@ namespace NBB.MultiTenant.Extensions
     public class TenantServiceProvider : IServiceProvider
     {
         private readonly IServiceCollection _services;
-        private readonly TenantService _tenantService;
+        private readonly ITenantService _tenantService;
         private readonly IServiceProvider _globalProvider;
         private readonly System.Collections.Generic.Dictionary<Guid, IServiceScope> scopes = new System.Collections.Generic.Dictionary<Guid, IServiceScope>();
 
 
-        public TenantServiceProvider(IServiceCollection services, TenantService tenantService)
+        public TenantServiceProvider(IServiceCollection services, ITenantService tenantService)
         {
             _services = services;
             _tenantService = tenantService;

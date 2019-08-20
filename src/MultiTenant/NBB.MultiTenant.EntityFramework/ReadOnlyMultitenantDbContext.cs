@@ -11,7 +11,7 @@ namespace NBB.MultiTenant.EntityFramework
 {
     public class ReadOnlyMultitenantDbContext : DbContext
     {
-        private Tenant _tenant;
+        private readonly Tenant _tenant;
         private readonly ICryptoService _cryptoService;
 
         public ReadOnlyMultitenantDbContext(ITenantService tenantService, ICryptoService cryptoService) : base()
@@ -42,7 +42,10 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            if (_tenant == null)
+            {
+                return;
+            }
             Expression<Func<IMayHaveTenant, bool>> optionalFilter = (IMayHaveTenant t) => t.TenantId.HasValue ? t.TenantId == _tenant.Id : true;
             Expression<Func<IMustHaveTenant, bool>> mandatoryFilter = (IMustHaveTenant t) => t.TenantId == _tenant.Id;
 
