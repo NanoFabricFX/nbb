@@ -49,6 +49,7 @@ namespace NBB.MultiTenant.Extensions
             });
 
             services.AddScoped<TenantOptions, TenantOptions>();
+            services.AddScoped<ITenantSession, TenantSession>();
             return services;
         }
 

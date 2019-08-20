@@ -11,11 +11,13 @@ namespace NBB.MultiTenant.Services
     {
         private readonly List<ITenantIdentificationService> _identificationServices;
         private readonly ITenantStore _tenantStore;
+        private readonly ITenantSession _session;
 
-        public TenantService(IEnumerable<ITenantIdentificationService> identificationServices, ITenantStore tenantStore)
+        public TenantService(IEnumerable<ITenantIdentificationService> identificationServices, ITenantStore tenantStore, ITenantSession session)
         {
             _identificationServices = identificationServices.ToList();
             _tenantStore = tenantStore;
+            _session = session;
         }
 
         public async Task<bool> Add(Tenant tenant)
@@ -46,9 +48,10 @@ namespace NBB.MultiTenant.Services
                 tenant = await service.GetCurrentTenant();
                 if (tenant != null)
                 {
+                    _session.SetTenantId(tenant.Id);
                     return tenant;
                 }
-            }           
+            }
 
             return null;
         }

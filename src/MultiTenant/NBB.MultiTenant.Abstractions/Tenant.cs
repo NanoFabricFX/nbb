@@ -9,8 +9,8 @@ namespace NBB.MultiTenant.Abstractions
         public string Host { get; set; }
         public string SourceIp { get; set; }
         public string ConnectionString { get; set; }
-        public string Server {get;set;}
-        public string Database {get;set;}
+        public string ServerName { get; set; }
+        public string DatabaseName { get; set; }
         public DatabaseClient DatabaseClient { get; set; }
     }
 
