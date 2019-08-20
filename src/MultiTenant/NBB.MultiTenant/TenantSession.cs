@@ -5,43 +5,88 @@ namespace NBB.MultiTenant
 {
     public class TenantSession : ITenantSession
     {
-        private Tenant _tenant;
+        private Guid? _tenantId;
+        private bool _isUserImpersonated;
+        private bool _isTenantImpersonated;
+        private string _userId;
 
-        public string UserId { get; set; }
+        private string _impersonatorUserId;
+        private Guid? _impersonatedTenantId;
 
-        public bool IsHostUser => !string.IsNullOrEmpty(UserId) && _tenant == null;
+        public string UserId
+        {
+            get
+            {
+                if (_isTenantImpersonated)
+                {
+                    return ImpersonatorUserId;
+                }
+                return _userId;
+            }
+            set
+            {
+                _userId = value;
+            }
+        }
 
-        public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && _tenant != null;
+        public Guid? TenantId
+        {
+            get
+            {
+                if (_isTenantImpersonated)
+                {
+                    return ImpersonatedTenantId;
+                }
+                return _tenantId;
+            }
+            set
+            {
+                _tenantId = value;
+            }
+        }
+
+        public string ImpersonatorUserId
+        {
+            get
+            {
+                return _impersonatorUserId;
+            }
+            set
+            {
+                _isUserImpersonated = true;
+                UserId = value;
+            }
+        }
+
+        public Guid? ImpersonatedTenantId
+        {
+            get
+            {
+                return _impersonatedTenantId;
+            }
+            set
+            {
+                _isTenantImpersonated = true;
+                TenantId = value;
+            }
+        }
+
+        public bool IsHostUser => !string.IsNullOrEmpty(UserId) && !_tenantId.HasValue;
+
+        public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && _tenantId.HasValue;
 
         public bool IsLoggedIn => !string.IsNullOrEmpty(UserId);
 
-        public TenantSession()
+        public void Use(Guid? tenantId, string userId)
         {
-
-        }
-
-        public TenantSession(Tenant tenant)
-        {
-            _tenant = tenant;
-        }
-
-        /// <summary>
-        /// Used as a scoped method for impersonation
-        /// </summary>
-        /// <param name="tenantId"></param>
-        public void SetTenantId(Guid tenantId)
-        {
-            _tenant.Id = tenantId;
-        }
-
-        public Guid? GetTenantId()
-        {
-            return _tenant.Id;
+            _isTenantImpersonated = true;
+            _isUserImpersonated = true;
+            TenantId = tenantId;
+            UserId = userId;
         }
 
         public void Dispose()
         {
-            _tenant = null;
             UserId = null;
         }
     }
