@@ -24,7 +24,15 @@ namespace NBB.MultiTenant.Extensions
             }
 
             services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
-            services.AddScoped<ICryptoService>(provider => new AesCryptoService(tenantOptions.EncryptionKey));
+            if (tenantOptions.UseConnectionStringEncryption)
+            {
+                services.AddScoped<ICryptoService>(provider => new AesCryptoService(tenantOptions.EncryptionKey));
+            }
+            else
+            {
+                services.AddScoped<ICryptoService, NoopCryptoService>();
+            }
+            
             services.AddScoped<ITenantService, TenantService>();
 
             if (tenantOptions.IdentificationOptions.UseHeaders)

@@ -6,32 +6,43 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public class ReadOnlyMultitenantDbContext : DbContext
+    public class ReadOnlyMultitenantDbContext : BaseMultiTenantDbContext
     {
-        private readonly Tenant _tenant;
+        private readonly NBB.MultiTenant.Abstractions.Tenant _tenant;
         private readonly ICryptoService _cryptoService;
+        private readonly ITenantService _tenantService;
+        private readonly string _connectionString = null;
+        private readonly TenantOptions _tenantOptions;
 
-        public ReadOnlyMultitenantDbContext(ITenantService tenantService, ICryptoService cryptoService) : base()
+        public ReadOnlyMultitenantDbContext(ICryptoService cryptoService, ITenantService tenantService, TenantOptions tenantOptions) : base(tenantOptions, tenantService)
         {
             _cryptoService = cryptoService;
-            _tenant = tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+            _tenantService = tenantService;
+            _tenantOptions = tenantOptions;
+
+            _tenant = _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+            _connectionString = _tenant.ConnectionString;
+
             ChangeTracker.AutoDetectChangesEnabled = false;
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+
             if (_tenant.DatabaseClient == DatabaseClient.SqlClient)
             {
-                optionsBuilder.UseSqlServer(_cryptoService.Decrypt(_tenant.ConnectionString));
+                optionsBuilder.UseSqlServer(_cryptoService.Decrypt(_connectionString));
             }
-            else if (_tenant.DatabaseClient == DatabaseClient.MySql)
-            {
-                optionsBuilder.UseMySQL(_cryptoService.Decrypt(_tenant.ConnectionString));
-            }
+            //else if (_tenant.DatabaseClient == DatabaseClient.MySql)
+            //{
+            //    optionsBuilder.UseMySQL(_cryptoService.Decrypt(_tenant.ConnectionString));
+            //}
             else
             {
                 throw new Exception($"Unsupported database type {_tenant.DatabaseClient}");
@@ -42,28 +53,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (_tenant == null)
-            {
-                return;
-            }
-            Expression<Func<IMayHaveTenant, bool>> optionalFilter = (IMayHaveTenant t) => t.TenantId.HasValue ? t.TenantId == _tenant.Id : true;
-            Expression<Func<IMustHaveTenant, bool>> mandatoryFilter = (IMustHaveTenant t) => t.TenantId == _tenant.Id;
-
-            var optional = modelBuilder.Model.GetEntityTypes().OfType<IMayHaveTenant>().ToList();
-
-            optional.ForEach(t =>
-            {
-                var entity = modelBuilder.Entity(t.GetType());
-                entity.HasQueryFilter(optionalFilter);
-            });
-
-            var mandatory = modelBuilder.Model.GetEntityTypes().OfType<IMustHaveTenant>().ToList();
-
-            mandatory.ForEach(t =>
-            {
-                var entity = modelBuilder.Entity(t.GetType());
-                entity.HasQueryFilter(mandatoryFilter);
-            });
+            base.OnModelCreating(modelBuilder);
         }
 
         public override int SaveChanges()

@@ -1,24 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 using System;
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public abstract class MultiTenantDbContext : DbContext
+    public abstract class MultiTenantDbContext : BaseMultiTenantDbContext
     {
-        private readonly Tenant _tenant;
+        private readonly NBB.MultiTenant.Abstractions.Tenant _tenant;
         private readonly ICryptoService _cryptoService;
+        private readonly ITenantService _tenantService;
+        private readonly string _connectionString = null;
+        private readonly TenantOptions _tenantOptions;
 
-        public MultiTenantDbContext(ITenantService tenantService, ICryptoService cryptoService) : base()
+        public MultiTenantDbContext(ICryptoService cryptoService, ITenantService tenantService, TenantOptions tenantOptions) : base(tenantOptions, tenantService)
         {
             _cryptoService = cryptoService;
-            _tenant = tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+            _tenantService = tenantService;
+            _tenantOptions = tenantOptions;
+
+            _tenant = _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+            _connectionString = _tenant.ConnectionString;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -27,10 +31,10 @@ namespace NBB.MultiTenant.EntityFramework
             {
                 optionsBuilder.UseSqlServer(_cryptoService.Decrypt(_tenant.ConnectionString));
             }
-            else if (_tenant.DatabaseClient == DatabaseClient.MySql)
-            {
-                optionsBuilder.UseMySQL(_cryptoService.Decrypt(_tenant.ConnectionString));
-            }
+            //else if (_tenant.DatabaseClient == DatabaseClient.MySql)
+            //{
+            //    optionsBuilder.UseMySQL(_cryptoService.Decrypt(_tenant.ConnectionString));
+            //}
             else
             {
                 throw new Exception($"Unsupported database type {_tenant.DatabaseClient}");
@@ -41,92 +45,35 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (_tenant == null)
-            {
-                return;
-            }
-            Expression<Func<IMayHaveTenant, bool>> optionalFilter = (IMayHaveTenant t) => t.TenantId.HasValue ? t.TenantId == _tenant.Id : true;
-            Expression<Func<IMustHaveTenant, bool>> mandatoryFilter = (IMustHaveTenant t) => t.TenantId == _tenant.Id;
-
-            var optional = modelBuilder.Model.GetEntityTypes().OfType<IMayHaveTenant>().ToList();
-
-            optional.ForEach(t =>
-            {
-                var entity = modelBuilder.Entity(t.GetType());
-                entity.HasQueryFilter(optionalFilter);
-            });
-
-            var mandatory = modelBuilder.Model.GetEntityTypes().OfType<IMustHaveTenant>().ToList();
-
-            mandatory.ForEach(t =>
-            {
-                var entity = modelBuilder.Entity(t.GetType());
-                entity.HasQueryFilter(mandatoryFilter);
-            });
+            base.OnModelCreating(modelBuilder);
         }
 
         public override int SaveChanges()
         {
-            ThrowIfMultipleTenants();
+            ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChanges();
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            ThrowIfMultipleTenants();
+            ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfMultipleTenants();
+            ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfMultipleTenants();
+            ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChangesAsync(cancellationToken);
-        }
-
-        private void ThrowIfMultipleTenants()
-        {
-            if (_tenant == null)
-            {
-                return;
-            }
-            var optionalIds = (from e in ChangeTracker.Entries()
-                               where e.Entity is IMayHaveTenant && ((IMayHaveTenant)e.Entity).TenantId.HasValue
-                               select ((IMayHaveTenant)e.Entity).TenantId.Value)
-                       .Distinct()
-                       .ToList();
-
-            var mandatoryIds = (from e in ChangeTracker.Entries()
-                                where e.Entity is IMustHaveTenant
-                                select ((IMustHaveTenant)e.Entity).TenantId)
-                       .Distinct()
-                       .ToList();
-
-            var toCheck = optionalIds.Union(mandatoryIds).ToList();
-
-            if (toCheck.Count == 0)
-            {
-                return;
-            }
-
-            if (toCheck.Count > 1)
-            {
-                throw new CrossTenantUpdateException(toCheck);
-            }
-
-            if (toCheck.First() != _tenant.Id)
-            {
-                throw new CrossTenantUpdateException(toCheck);
-            }
         }
     }
 }

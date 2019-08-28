@@ -12,11 +12,11 @@ namespace NBB.MultiTenant.Repositories
     {
         private readonly string _connectionString;
 
-        private const string ExactFilteredQueryFormat = "SELECT * FROM Tenant WHERE {0} = @{0}";
-        private const string LikeFilteredQueryFormat = "SELECT * FROM Tenant WHERE @{0} LIKE {0}";
-        private const string InsertFormat = "Insert into Tenant ( Id, Name, Host, SourceIp, ConnectionString, DatabaseClient) values(@Id, @Name, @Host, @SourceIp, @ConnectionString, @DatabaseClient)";
-        private const string UpdateFormat = "Update Tenant set Name=  @Name, Host = @Host, SourceIp = @SourceIp, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where Id = @Id";
-        private const string DeleteFormat = "Delete from Tenant where Id = @Id";
+        private const string TenantExactFilteredQueryFormat = "SELECT * FROM Tenants WHERE {0} = @{0}";
+        private const string TenantLikeFilteredQueryFormat = "SELECT * FROM Tenants WHERE @{0} LIKE {0}";
+        private const string TenantInsertFormat = "Insert into Tenants ( Id, Name, Host, SourceIp, ConnectionString, DatabaseClient) values(@Id, @Name, @Host, @SourceIp, @ConnectionString, @DatabaseClient)";
+        private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, SourceIp = @SourceIp, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where Id = @Id";
+        private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
         public DatabaseTenantStore(string connectionString)
         {
@@ -34,7 +34,7 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(ExactFilteredQueryFormat, nameof(Tenant.Id));
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.Id));
                 var result = await connection.QueryAsync<Tenant>(query, new { Id = id });
                 return result.FirstOrDefault();
             }
@@ -49,7 +49,7 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(ExactFilteredQueryFormat, nameof(Tenant.Name));
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.Name));
                 var result = await connection.QueryAsync<Tenant>(query, new { Name = name });
                 return result.FirstOrDefault();
             }
@@ -64,7 +64,7 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(ExactFilteredQueryFormat, nameof(Tenant.Host));
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.Host));
                 var result = await connection.QueryAsync<Tenant>(query, new { Host = host });
                 return result.FirstOrDefault();
             }
@@ -84,7 +84,7 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(LikeFilteredQueryFormat, nameof(Tenant.SourceIp));
+                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant.SourceIp));
                 var result = await connection.QueryAsync<Tenant>(query, new { SourceIp = sourceIp });
                 return result.FirstOrDefault();
             }
@@ -108,7 +108,7 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(LikeFilteredQueryFormat, nameof(Tenant.SourceIp));
+                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant.SourceIp));
                 var result = await connection.QueryAsync<Tenant>(query, new { SourceIp = ipAndPort });
                 return result.FirstOrDefault();
             }
@@ -122,7 +122,7 @@ namespace NBB.MultiTenant.Repositories
                 {
                     connection.Open();
                 }
-                var count = await Connection.ExecuteAsync(InsertFormat, tenant);
+                var count = await Connection.ExecuteAsync(TenantInsertFormat, tenant);
                 return count == 1;
             }
         }
@@ -135,7 +135,7 @@ namespace NBB.MultiTenant.Repositories
                 {
                     connection.Open();
                 }
-                var count = await Connection.ExecuteAsync(UpdateFormat, tenant);
+                var count = await Connection.ExecuteAsync(TenantUpdateFormat, tenant);
                 return count == 1;
             }
         }
@@ -148,7 +148,7 @@ namespace NBB.MultiTenant.Repositories
                 {
                     connection.Open();
                 }
-                var count = await Connection.ExecuteAsync(DeleteFormat, tenant);
+                var count = await Connection.ExecuteAsync(TenantDeleteFormat, tenant);
                 return count == 1;
             }
         }

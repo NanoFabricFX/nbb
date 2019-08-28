@@ -19,21 +19,24 @@ namespace NBB.MultiTenant.Services
             _tenantOptions = tenantOptions;
             _context = accessor.HttpContext;
 
-            if (!string.IsNullOrEmpty(tenantOptions.IdentificationOptions.TenantHeadersKey))
-            {
-                _tenantIdKey = tenantOptions.IdentificationOptions.TenantHeadersKey;
-            }
+            
         }
 
         public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Headers;
 
         public async Task<Tenant> GetCurrentTenant()
         {
+            var tenantKey = _tenantIdKey;
+            if (!string.IsNullOrEmpty(_tenantOptions.IdentificationOptions.TenantHeadersKey))
+            {
+                tenantKey = _tenantOptions.IdentificationOptions.TenantHeadersKey;
+            }
+
             if (!_context.Request.Headers.ContainsKey(_tenantIdKey))
             {
                 return null;
             }
-            var tenantId = _context.Request.Headers[_tenantIdKey];
+            var tenantId = _context.Request.Headers[tenantKey];
 
             if (Guid.TryParse(tenantId, out var guid))
             {

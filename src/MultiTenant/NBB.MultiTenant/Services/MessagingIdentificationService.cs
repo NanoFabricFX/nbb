@@ -9,16 +9,14 @@ namespace NBB.MultiTenant.Services
     public class MessagingIdentificationService : ITenantIdentificationService
     {
         private readonly string _tenantIdKey = "tenantId";
-        private readonly ITenantIdentificationService _identificationService;
         private readonly ITenantStore _store;
         private readonly TenantOptions _tenantOptions;
         private readonly MessagingContextAccessor _messagingContextAccessor;
 
         public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Messaging;
 
-        public MessagingIdentificationService(ITenantIdentificationService identificationService, ITenantStore store, TenantOptions tenantOptions, MessagingContextAccessor messagingContextAccessor)
+        public MessagingIdentificationService(ITenantStore store, TenantOptions tenantOptions, MessagingContextAccessor messagingContextAccessor)
         {
-            _identificationService = identificationService;
             _store = store;
             _tenantOptions = tenantOptions;
             _messagingContextAccessor = messagingContextAccessor;
