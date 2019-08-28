@@ -14,8 +14,8 @@ namespace NBB.MultiTenant.Repositories
 
         private const string TenantExactFilteredQueryFormat = "SELECT * FROM Tenants WHERE {0} = @{0}";
         private const string TenantLikeFilteredQueryFormat = "SELECT * FROM Tenants WHERE @{0} LIKE {0}";
-        private const string TenantInsertFormat = "Insert into Tenants ( Id, Name, Host, SourceIp, ConnectionString, DatabaseClient) values(@Id, @Name, @Host, @SourceIp, @ConnectionString, @DatabaseClient)";
-        private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, SourceIp = @SourceIp, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where Id = @Id";
+        private const string TenantInsertFormat = "Insert into Tenants ( TenantId, Name, Host, SourceIp, ConnectionString, DatabaseClient) values(@TenantIdId, @Name, @Host, @SourceIp, @ConnectionString, @DatabaseClient)";
+        private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, SourceIp = @SourceIp, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
         private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
         public DatabaseTenantStore(string connectionString)
@@ -34,7 +34,7 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.Id));
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.TenantId));
                 var result = await connection.QueryAsync<Tenant>(query, new { Id = id });
                 return result.FirstOrDefault();
             }

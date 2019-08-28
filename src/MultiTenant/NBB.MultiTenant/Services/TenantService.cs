@@ -48,7 +48,7 @@ namespace NBB.MultiTenant.Services
                 tenant = await service.GetCurrentTenant();
                 if (tenant != null)
                 {
-                    _session.TenantId = tenant.Id;
+                    _session.TenantId = tenant.TenantId;
                     return tenant;
                 }
             }

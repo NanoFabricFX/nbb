@@ -4,7 +4,7 @@ namespace NBB.MultiTenant.Abstractions
 {
     public class Tenant
     {
-        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
         public string Name { get; set; }
         public string Host { get; set; }
         public string SourceIp { get; set; }

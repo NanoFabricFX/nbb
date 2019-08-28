@@ -1,10 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NBB.MultiTenant.EntityFramework.Entities;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace NBB.MultiTenant.EntityFramework
+namespace NBB.MultiTenant.EntityFramework.Entities
 {
     public partial class TenantDbContext : DbContext
     {
+        public TenantDbContext()
+        {
+        }
+
         public TenantDbContext(DbContextOptions<TenantDbContext> options)
             : base(options)
         {

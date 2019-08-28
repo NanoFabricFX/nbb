@@ -11,13 +11,15 @@ namespace NBB.MultiTenant.EntityFramework.Entities
             UserRoles = new HashSet<UserRole>();
         }
 
-        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
         public string Name { get; set; }
         public string Host { get; set; }
         public string SourceIp { get; set; }
         public string ConnectionString { get; set; }
         public int DatabaseClient { get; set; }
+        public Guid OwnerId { get; set; }
 
+        public virtual User Owner { get; set; }
         public virtual ICollection<TenantUser> TenantUsers { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }
     }

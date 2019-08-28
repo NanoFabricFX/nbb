@@ -62,7 +62,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected virtual void AddQueryFilters(ModelBuilder modelBuilder, List<IMutableEntityType> optional, List<IMutableEntityType> mandatory, NBB.MultiTenant.Abstractions.Tenant tenant)
         {
-            var tenantId = tenant.Id;
+            var tenantId = tenant.TenantId;
 
             optional.ForEach(t =>
             {
@@ -178,7 +178,7 @@ namespace NBB.MultiTenant.EntityFramework
                 throw new CrossTenantUpdateException(toCheck);
             }
 
-            if (toCheck.First() != tenant.Id)
+            if (toCheck.First() != tenant.TenantId)
             {
                 throw new CrossTenantUpdateException(toCheck);
             }

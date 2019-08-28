@@ -8,6 +8,7 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public User()
         {
             TenantUsers = new HashSet<TenantUser>();
+            Tenants = new HashSet<Tenant>();
             UserRoles = new HashSet<UserRole>();
         }
 
@@ -19,6 +20,7 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public string Lastname { get; set; }
 
         public virtual ICollection<TenantUser> TenantUsers { get; set; }
+        public virtual ICollection<Tenant> Tenants { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }
