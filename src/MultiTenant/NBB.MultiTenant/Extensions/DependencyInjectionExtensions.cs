@@ -56,55 +56,55 @@ namespace NBB.MultiTenant.Extensions
                 return connectionFactory.CreateDbConnection().GetAwaiter().GetResult();
             });
 
-            services.AddScoped<TenantOptions, TenantOptions>();
+            services.AddSingleton(s=> tenantOptions);
             services.AddScoped<ITenantSession, TenantSession>();
             return services;
         }
 
         public static IServiceCollection AddTenantFeatureResolver(this IServiceCollection services, TenantOptions tenantOptions)
         {
-            //var services = new ServiceCollection();
-            services.AddScoped<ExampleService>();
-            var globalProvider = services.BuildServiceProvider();
+            ////var services = new ServiceCollection();
+            //services.AddScoped<ExampleService>();
+            //var globalProvider = services.BuildServiceProvider();
 
-            using (var scope = globalProvider.CreateScope())
-            {
-                var localScoped = scope.ServiceProvider.GetService<ExampleService>();
+            //using (var scope = globalProvider.CreateScope())
+            //{
+            //    var localScoped = scope.ServiceProvider.GetService<ExampleService>();
 
-                var globalScoped = globalProvider.GetService<ExampleService>();
-            }
+            //    var globalScoped = globalProvider.GetService<ExampleService>();
+            //}
             return services;
         }
     }
 
-    class ExampleService
-    {
+    //class ExampleService
+    //{
 
-    }
+    //}
 
-    public class TenantServiceProvider : IServiceProvider
-    {
-        private readonly IServiceCollection _services;
-        private readonly ITenantService _tenantService;
-        private readonly IServiceProvider _globalProvider;
-        private readonly System.Collections.Generic.Dictionary<Guid, IServiceScope> scopes = new System.Collections.Generic.Dictionary<Guid, IServiceScope>();
+    //public class TenantServiceProvider : IServiceProvider
+    //{
+    //    private readonly IServiceCollection _services;
+    //    private readonly ITenantService _tenantService;
+    //    private readonly IServiceProvider _globalProvider;
+    //    private readonly System.Collections.Generic.Dictionary<Guid, IServiceScope> scopes = new System.Collections.Generic.Dictionary<Guid, IServiceScope>();
 
 
-        public TenantServiceProvider(IServiceCollection services, ITenantService tenantService)
-        {
-            _services = services;
-            _tenantService = tenantService;
-            _globalProvider = services.BuildServiceProvider();
-        }
+    //    public TenantServiceProvider(IServiceCollection services, ITenantService tenantService)
+    //    {
+    //        _services = services;
+    //        _tenantService = tenantService;
+    //        _globalProvider = services.BuildServiceProvider();
+    //    }
 
-        public object GetService(Type serviceType)
-        {
-            var tenant = _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
-            if (tenant == null)
-            {
-                return _globalProvider.GetRequiredService(serviceType);
-            }
-            throw new NotImplementedException();
-        }
-    }
+    //    public object GetService(Type serviceType)
+    //    {
+    //        var tenant = _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+    //        if (tenant == null)
+    //        {
+    //            return _globalProvider.GetRequiredService(serviceType);
+    //        }
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

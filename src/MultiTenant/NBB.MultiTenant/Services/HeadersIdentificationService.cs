@@ -19,7 +19,7 @@ namespace NBB.MultiTenant.Services
             _tenantOptions = tenantOptions;
             _context = accessor.HttpContext;
 
-            
+
         }
 
         public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Headers;
@@ -32,7 +32,7 @@ namespace NBB.MultiTenant.Services
                 tenantKey = _tenantOptions.IdentificationOptions.TenantHeadersKey;
             }
 
-            if (!_context.Request.Headers.ContainsKey(_tenantIdKey))
+            if (!_context.Request.Headers.ContainsKey(tenantKey))
             {
                 return null;
             }

@@ -35,7 +35,7 @@ namespace NBB.MultiTenant.Repositories
                 }
 
                 var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.TenantId));
-                var result = await connection.QueryAsync<Tenant>(query, new { Id = id });
+                var result = await connection.QueryAsync<Tenant>(query, new { TenantId = id });
                 return result.FirstOrDefault();
             }
         }
