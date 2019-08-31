@@ -45,6 +45,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.ApplyDefaultValues(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
 

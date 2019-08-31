@@ -25,10 +25,10 @@ namespace NBB.MultiTenant.Messaging
         {
             void NewCustomizer(MessagingEnvelope outgoingEnvelope)
             {
-                var tenant = _tenantService.GetCurrentTenant();
+                var tenant =  _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
                 if (tenant != null)
                 {
-                    outgoingEnvelope.SetHeader(_tenantOptions.IdentificationOptions.TenantMessagingKey, tenant.Id.ToString());
+                    outgoingEnvelope.SetHeader(_tenantOptions.IdentificationOptions.TenantMessagingKey, tenant.TenantId.ToString());
                 }
 
                 customizer?.Invoke(outgoingEnvelope);

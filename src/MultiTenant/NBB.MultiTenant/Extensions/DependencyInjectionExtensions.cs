@@ -20,34 +20,34 @@ namespace NBB.MultiTenant.Extensions
         {
             if (tenantOptions.TenantStoreType == TenantStoreType.Sql)
             {
-                services.AddScoped<ITenantStore>(provider => new DatabaseTenantStore(tenantOptions.ConnectionString));
+                services.AddSingleton<ITenantStore>(provider => new DatabaseTenantStore(tenantOptions.ConnectionString));
             }
 
             services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
             if (tenantOptions.UseConnectionStringEncryption)
             {
-                services.AddScoped<ICryptoService>(provider => new AesCryptoService(tenantOptions.EncryptionKey));
+                services.AddSingleton<ICryptoService>(provider => new AesCryptoService(tenantOptions.EncryptionKey));
             }
             else
             {
-                services.AddScoped<ICryptoService, NoopCryptoService>();
+                services.AddSingleton<ICryptoService, NoopCryptoService>();
             }
             
-            services.AddScoped<ITenantService, TenantService>();
+            services.AddSingleton<ITenantService, TenantService>();
 
             if (tenantOptions.IdentificationOptions.UseHeaders)
             {
-                services.AddScoped<ITenantIdentificationService, HeadersIdentificationService>();
+                services.AddSingleton<ITenantIdentificationService, HeadersIdentificationService>();
             }
 
             if (tenantOptions.IdentificationOptions.UseHost)
             {
-                services.AddScoped<ITenantIdentificationService, HostIdentificationService>();
+                services.AddSingleton<ITenantIdentificationService, HostIdentificationService>();
             }
 
             if (tenantOptions.IdentificationOptions.UseMessagingHeaders)
             {
-                services.AddScoped<ITenantIdentificationService, MessagingIdentificationService>();
+                services.AddSingleton<ITenantIdentificationService, MessagingIdentificationService>();
             }
 
             services.AddScoped(provider =>

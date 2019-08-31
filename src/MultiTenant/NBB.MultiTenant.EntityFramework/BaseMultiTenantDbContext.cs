@@ -15,8 +15,11 @@ namespace NBB.MultiTenant.EntityFramework
         private readonly TenantOptions _tenantOptions;
         MethodInfo optionalFilterMethod = typeof(ReadOnlyMultitenantDbContext).GetMethod("GetOptionalFilter");
         MethodInfo mandatoryFilterMethod = typeof(ReadOnlyMultitenantDbContext).GetMethod("GetMandatoryFilter");
+
+        MethodInfo setDefaultValueMethod = typeof(ReadOnlyMultitenantDbContext).GetMethod("SetDefaultValue");
+
         private readonly ITenantService _tenantService;
-        private readonly NBB.MultiTenant.Abstractions.Tenant _tenant;
+        private readonly Tenant _tenant;
 
         public BaseMultiTenantDbContext(TenantOptions tenantOptions, ITenantService tenantService)
         {
@@ -35,6 +38,11 @@ namespace NBB.MultiTenant.EntityFramework
         {
             Expression<Func<T, bool>> filter = t => t.TenantId.HasValue ? t.TenantId == tenantId : true;
             return filter;
+        }
+
+        public void SetDefaultValue<T>(ModelBuilder modelBuilder, Guid tenantId) where T : class, IMustHaveTenant
+        {
+            modelBuilder.Entity<T>().Property("TenantId").HasDefaultValue(tenantId);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -60,7 +68,44 @@ namespace NBB.MultiTenant.EntityFramework
             AddQueryFilters(modelBuilder, optional, mandatory, _tenant);
         }
 
-        protected virtual void AddQueryFilters(ModelBuilder modelBuilder, List<IMutableEntityType> optional, List<IMutableEntityType> mandatory, NBB.MultiTenant.Abstractions.Tenant tenant)
+        protected void ApplyDefaultValues(ModelBuilder modelBuilder)
+        {
+            if (_tenant == null)
+            {
+                return;
+            }
+            var mandatory = new List<IMutableEntityType>();
+            if (_tenantOptions.UseDatabaseInheritance)
+            {
+                mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant).IsAssignableFrom(p.ClrType)).ToList());
+            }
+            if (_tenantOptions.UseDatabaseAnnotations)
+            {
+                mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation("IMustHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMustHaveTenant").Value)));
+            }
+            mandatory = mandatory.Distinct().ToList();
+
+            var tenantId = _tenant.TenantId;
+
+            mandatory.ToList().ForEach(t =>
+            {
+                var generic = setDefaultValueMethod.MakeGenericMethod(t.ClrType);
+                var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
+            });
+        }
+
+        protected void ApplyDefaultValues(ModelBuilder modelBuilder, List<IMutableEntityType> optional, List<IMutableEntityType> mandatory, Tenant tenant)
+        {
+            var tenantId = tenant.TenantId;
+
+            mandatory.ToList().ForEach(t =>
+            {
+                var generic = setDefaultValueMethod.MakeGenericMethod(t.ClrType);
+                var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
+            });
+        }
+
+        protected virtual void AddQueryFilters(ModelBuilder modelBuilder, List<IMutableEntityType> optional, List<IMutableEntityType> mandatory, Tenant tenant)
         {
             var tenantId = tenant.TenantId;
 
