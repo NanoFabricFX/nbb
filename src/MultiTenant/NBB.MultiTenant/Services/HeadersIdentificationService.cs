@@ -11,13 +11,13 @@ namespace NBB.MultiTenant.Services
         private readonly string _tenantIdKey = "tenantId";
         private readonly ITenantStore _store;
         private readonly TenantOptions _tenantOptions;
-        private readonly HttpContext _context;
+        private readonly IHttpContextAccessor _accessor;
 
         public HeadersIdentificationService(ITenantStore store, TenantOptions tenantOptions, IHttpContextAccessor accessor)
         {
             _store = store;
             _tenantOptions = tenantOptions;
-            _context = accessor.HttpContext;
+            _accessor = accessor;
 
 
         }
@@ -27,16 +27,17 @@ namespace NBB.MultiTenant.Services
         public async Task<Tenant> GetCurrentTenant()
         {
             var tenantKey = _tenantIdKey;
+            var context = _accessor.HttpContext;
             if (!string.IsNullOrEmpty(_tenantOptions.IdentificationOptions.TenantHeadersKey))
             {
                 tenantKey = _tenantOptions.IdentificationOptions.TenantHeadersKey;
             }
 
-            if (!_context.Request.Headers.ContainsKey(tenantKey))
+            if (!context.Request.Headers.ContainsKey(tenantKey))
             {
                 return null;
             }
-            var tenantId = _context.Request.Headers[tenantKey];
+            var tenantId = context.Request.Headers[tenantKey];
 
             if (Guid.TryParse(tenantId, out var guid))
             {

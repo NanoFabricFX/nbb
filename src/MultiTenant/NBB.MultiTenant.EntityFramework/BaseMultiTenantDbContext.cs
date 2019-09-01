@@ -141,7 +141,7 @@ namespace NBB.MultiTenant.EntityFramework
             var toCheck = optionalIds.Union(mandatoryIds).ToList();
             return toCheck;
         }
-
+        
         protected List<Guid> GetViolationsByAnnotations()
         {
             // Get all the entity types information contained in the DbContext class, ...
@@ -173,6 +173,17 @@ namespace NBB.MultiTenant.EntityFramework
             return toCheck;
         }
 
+        protected void UpdateDefaultTenantId(Tenant tenant)
+        {
+            var list = ChangeTracker.Entries()
+                .Where(e => e.Entity is IMustHaveTenant && ((IMustHaveTenant)e.Entity).TenantId == default(Guid))
+                .Select(e => ((IMustHaveTenant)e.Entity));
+            foreach (var e in list)
+            {
+                e.TenantId = tenant.TenantId;
+            }
+        }
+
         protected List<Guid> GetViolations()
         {
             var list = new List<Guid>();
@@ -185,11 +196,10 @@ namespace NBB.MultiTenant.EntityFramework
             {
                 list.AddRange(GetViolationsByAnnotations());
             }
-
             return list.Distinct().ToList();
         }
 
-        protected void ThrowIfMultipleTenants(NBB.MultiTenant.Abstractions.Tenant tenant)
+        protected void ThrowIfMultipleTenants(Tenant tenant)
         {
             if (tenant == null)
             {
@@ -201,17 +211,7 @@ namespace NBB.MultiTenant.EntityFramework
                 return;
             }
 
-            List<Guid> toCheck = new List<Guid>();
-
-            if (_tenantOptions.UseDatabaseInheritance)
-            {
-                toCheck = GetViolationsByInheritance();
-            }
-
-            if (_tenantOptions.UseDatabaseAnnotations)
-            {
-                toCheck.AddRange(GetViolationsByAnnotations());
-            }
+            List<Guid> toCheck = GetViolations();            
 
             if (toCheck.Count == 0)
             {

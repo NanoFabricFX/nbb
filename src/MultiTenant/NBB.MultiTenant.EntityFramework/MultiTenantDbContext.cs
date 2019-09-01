@@ -45,12 +45,13 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.ApplyDefaultValues(modelBuilder);
+            ApplyDefaultValues(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
 
         public override int SaveChanges()
         {
+            UpdateDefaultTenantId(_tenant);
             ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChanges();
@@ -58,6 +59,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
+            UpdateDefaultTenantId(_tenant);
             ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChanges(acceptAllChangesOnSuccess);
@@ -65,6 +67,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
+            UpdateDefaultTenantId(_tenant);
             ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -72,6 +75,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            UpdateDefaultTenantId(_tenant);
             ThrowIfMultipleTenants(_tenant);
 
             return base.SaveChangesAsync(cancellationToken);
