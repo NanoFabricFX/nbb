@@ -11,15 +11,14 @@ namespace NBB.MultiTenant
         private string _userId;
 
         private string _impersonatorUserId;
-        private Guid? _impersonatedTenantId;
 
         public string UserId
         {
             get
             {
-                if (_isTenantImpersonated)
+                if (_isUserImpersonated)
                 {
-                    return ImpersonatorUserId;
+                    return _impersonatorUserId;
                 }
                 return _userId;
             }
@@ -33,15 +32,11 @@ namespace NBB.MultiTenant
         {
             get
             {
-                if (_isTenantImpersonated)
+                if (ImpersonatedTenant != null)
                 {
-                    return ImpersonatedTenantId;
+                    return ImpersonatedTenant.TenantId;
                 }
                 return _tenantId;
-            }
-            set
-            {
-                _tenantId = value;
             }
         }
 
@@ -53,23 +48,17 @@ namespace NBB.MultiTenant
             }
             set
             {
-                _isUserImpersonated = true;
-                UserId = value;
+                _isUserImpersonated = string.IsNullOrEmpty(value);
+                _impersonatorUserId = value;
             }
         }
 
-        public Guid? ImpersonatedTenantId
-        {
-            get
-            {
-                return _impersonatedTenantId;
-            }
-            set
-            {
-                _isTenantImpersonated = true;
-                TenantId = value;
-            }
-        }
+
+        public Guid? ImpersonatedTenantId => ImpersonatedTenant?.TenantId;
+
+        public Tenant ImpersonatedTenant { get; set; }
+
+        public Tenant Tenant { get; set; }
 
         public bool IsHostUser => !string.IsNullOrEmpty(UserId) && !_tenantId.HasValue;
 
@@ -77,13 +66,9 @@ namespace NBB.MultiTenant
 
         public bool IsLoggedIn => !string.IsNullOrEmpty(UserId);
 
-        public void Use(Guid? tenantId, string userId)
-        {
-            _isTenantImpersonated = true;
-            _isUserImpersonated = true;
-            TenantId = tenantId;
-            UserId = userId;
-        }
+        public string ConnectionString => Tenant?.ConnectionString;
+
+        
 
         public void Dispose()
         {

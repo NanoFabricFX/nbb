@@ -9,7 +9,7 @@ namespace NBB.MultiTenant.EntityFramework
 {
     public abstract class MultiTenantDbContext : BaseMultiTenantDbContext
     {
-        private readonly NBB.MultiTenant.Abstractions.Tenant _tenant;
+        private readonly Tenant _tenant;
         private readonly ICryptoService _cryptoService;
         private readonly ITenantService _tenantService;
         private readonly string _connectionString = null;

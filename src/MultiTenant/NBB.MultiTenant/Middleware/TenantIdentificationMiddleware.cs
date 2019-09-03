@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
 using System.Threading.Tasks;
 
@@ -18,9 +19,14 @@ namespace NBB.MultiTenant.Pipelines
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task InvokeAsync(HttpContext context, ITenantService tenantService)
-        {            
-            await tenantService.GetCurrentTenant();
+        public async Task InvokeAsync(HttpContext context, ITenantService tenantService, ITenantSession tenantSession)
+        {
+            var tenant = await tenantService.GetCurrentTenant();
+
+            if (tenant != null)
+            {
+                tenantSession.Tenant = tenant;
+            }
 
             // Call the next delegate/middleware in the pipeline
             await _next(context);

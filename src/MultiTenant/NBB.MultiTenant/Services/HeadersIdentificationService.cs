@@ -18,8 +18,6 @@ namespace NBB.MultiTenant.Services
             _store = store;
             _tenantOptions = tenantOptions;
             _accessor = accessor;
-
-
         }
 
         public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Headers;
@@ -37,6 +35,7 @@ namespace NBB.MultiTenant.Services
             {
                 return null;
             }
+
             var tenantId = context.Request.Headers[tenantKey];
 
             if (Guid.TryParse(tenantId, out var guid))

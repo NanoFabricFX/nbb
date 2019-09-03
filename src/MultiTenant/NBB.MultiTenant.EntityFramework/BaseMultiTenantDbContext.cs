@@ -175,6 +175,10 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected void UpdateDefaultTenantId(Tenant tenant)
         {
+            if(tenant==null)
+            {
+                return;
+            }
             var list = ChangeTracker.Entries()
                 .Where(e => e.Entity is IMustHaveTenant && ((IMustHaveTenant)e.Entity).TenantId == default(Guid))
                 .Select(e => ((IMustHaveTenant)e.Entity));

@@ -33,7 +33,7 @@ namespace NBB.MultiTenant.Extensions
                 services.AddSingleton<ICryptoService, NoopCryptoService>();
             }
             
-            services.AddSingleton<ITenantService, TenantService>();
+            services.AddScoped<ITenantService, TenantService>();
 
             if (tenantOptions.IdentificationOptions.UseHeaders)
             {
