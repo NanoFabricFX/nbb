@@ -5,7 +5,6 @@ namespace NBB.MultiTenant
 {
     public class TenantSession : ITenantSession
     {
-        private Guid? _tenantId;
         private bool _isUserImpersonated;
         private bool _isTenantImpersonated;
         private string _userId;
@@ -36,7 +35,7 @@ namespace NBB.MultiTenant
                 {
                     return ImpersonatedTenant.TenantId;
                 }
-                return _tenantId;
+                return Tenant?.TenantId;
             }
         }
 
@@ -60,15 +59,15 @@ namespace NBB.MultiTenant
 
         public Tenant Tenant { get; set; }
 
-        public bool IsHostUser => !string.IsNullOrEmpty(UserId) && !_tenantId.HasValue;
+        public bool IsHostUser => !string.IsNullOrEmpty(UserId) && Tenant == null;
 
-        public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && _tenantId.HasValue;
+        public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && Tenant != null;
 
         public bool IsLoggedIn => !string.IsNullOrEmpty(UserId);
 
         public string ConnectionString => Tenant?.ConnectionString;
 
-        
+
 
         public void Dispose()
         {

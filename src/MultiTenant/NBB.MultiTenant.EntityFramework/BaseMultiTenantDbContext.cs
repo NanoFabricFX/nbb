@@ -25,7 +25,7 @@ namespace NBB.MultiTenant.EntityFramework
         {
             _tenantOptions = tenantOptions;
             _tenantService = tenantService;
-            _tenant = tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+            _tenant = tenantService.GetCurrentTenant();
         }
 
         public Expression<Func<T, bool>> GetMandatoryFilter<T>(ModelBuilder modelBuilder, Guid tenantId) where T : class, IMustHaveTenant

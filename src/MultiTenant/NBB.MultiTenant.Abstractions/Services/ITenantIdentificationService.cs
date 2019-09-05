@@ -4,7 +4,8 @@ namespace NBB.MultiTenant.Abstractions.Services
 {
     public interface ITenantIdentificationService
     {
-        Task<Tenant> GetCurrentTenant();
+        Tenant GetCurrentTenant();
+        Task<Tenant> GetCurrentTenantAsync();
         TenantIdentificationType TenantIdentificationType { get; }
     }
 

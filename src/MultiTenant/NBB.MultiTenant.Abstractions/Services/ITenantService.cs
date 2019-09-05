@@ -4,9 +4,10 @@ namespace NBB.MultiTenant.Abstractions.Services
 {
     public interface ITenantService
     {
-        Task<Tenant> GetCurrentTenant();
-        Task<bool> Add(Tenant tenant);
-        Task<bool> Edit(Tenant tenant);
-        Task<bool> Delete(Tenant tenant);
+        Tenant GetCurrentTenant();
+        Task<Tenant> GetCurrentTenantAsync();
+        Task<bool> AddAsync(Tenant tenant);
+        Task<bool> EditAsync(Tenant tenant);
+        Task<bool> DeleteAsync(Tenant tenant);
     }
 }

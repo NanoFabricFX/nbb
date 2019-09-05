@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NBB.MultiTenant.Services
 {
-    public class HostPortIdentificationService: ITenantIdentificationService
+    public class HostPortIdentificationService : ITenantIdentificationService
     {
         private readonly ITenantStore _store;
         private readonly IHttpContextAccessor _accessor;
@@ -16,9 +16,18 @@ namespace NBB.MultiTenant.Services
         {
             _store = store;
             _accessor = accessor;
-        }       
+        }
 
-        public async Task<Tenant> GetCurrentTenant()
+        public Tenant GetCurrentTenant()
+        {
+            var host = _accessor.HttpContext.Request.Host.Host;
+            var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            var localPort = _accessor.HttpContext.Connection.LocalPort;
+            var remotePort = _accessor.HttpContext.Connection.RemotePort;
+            return _store.GetByHost(host).GetAwaiter().GetResult();
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
         {
             var host = _accessor.HttpContext.Request.Host.Host;
             var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();

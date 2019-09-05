@@ -25,7 +25,7 @@ namespace NBB.MultiTenant.Messaging
         {
             void NewCustomizer(MessagingEnvelope outgoingEnvelope)
             {
-                var tenant =  _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+                var tenant =  _tenantService.GetCurrentTenant();
                 if (tenant != null)
                 {
                     outgoingEnvelope.SetHeader(_tenantOptions.IdentificationOptions.TenantMessagingKey, tenant.TenantId.ToString());

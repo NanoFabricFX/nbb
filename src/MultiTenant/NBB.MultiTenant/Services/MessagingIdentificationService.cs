@@ -27,7 +27,7 @@ namespace NBB.MultiTenant.Services
             }
         }
 
-        public async Task<Tenant> GetCurrentTenant()
+        private Guid? GetTenantId()
         {
             if (!_messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers.ContainsKey(_tenantIdKey))
             {
@@ -35,13 +35,34 @@ namespace NBB.MultiTenant.Services
             }
 
             var tenantId = _messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers[_tenantIdKey];
-
             if (Guid.TryParse(tenantId, out var guid))
             {
-                var tenant = await _store.Get(guid);
+                return guid;
+            }
+            return null;
+        }
+
+        public Tenant GetCurrentTenant()
+        {
+            var tenantId = GetTenantId();
+
+            if (tenantId.HasValue)
+            {
+                var tenant = _store.Get(tenantId.Value).GetAwaiter().GetResult();
                 return tenant;
             }
+            return null;
+        }
 
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            var tenantId = GetTenantId();
+
+            if (tenantId.HasValue)
+            {
+                var tenant = await _store.Get(tenantId.Value);
+                return tenant;
+            }
             return null;
         }
     }

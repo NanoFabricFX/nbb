@@ -32,8 +32,8 @@ namespace NBB.MultiTenant.Extensions
             {
                 services.AddSingleton<ICryptoService, NoopCryptoService>();
             }
-            
-            services.AddScoped<ITenantService, TenantService>();
+
+            services.AddSingleton<ITenantService, TenantService>();
 
             if (tenantOptions.IdentificationOptions.UseHeaders)
             {
@@ -56,7 +56,25 @@ namespace NBB.MultiTenant.Extensions
                 return connectionFactory.CreateDbConnection().GetAwaiter().GetResult();
             });
 
-            services.AddSingleton(s=> tenantOptions);
+            services.AddSingleton(s => tenantOptions);
+            //services.AddScoped<ITenantSession>(s =>
+            //{
+            //    using (var scope = s.CreateScope())
+            //    {
+            //        var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
+            //        var tenant = tenantService.GetCurrentTenant();
+            //        if (tenant == null)
+            //        {
+            //            return null;
+            //        }
+            //        var tenantSession = new TenantSession
+            //        {
+            //            Tenant = tenant
+            //        };
+            //        return tenantSession;
+            //    }
+
+            //});
             services.AddScoped<ITenantSession, TenantSession>();
             return services;
         }

@@ -12,48 +12,41 @@ namespace NBB.MultiTenant.Services
     {
         private readonly List<ITenantIdentificationService> _identificationServices;
         private readonly ITenantStore _tenantStore;
-        IServiceProvider ss;
-        private readonly ITenantSession _session;
 
         public TenantService(IEnumerable<ITenantIdentificationService> identificationServices,
-            ITenantStore tenantStore, ITenantSession session)
+            ITenantStore tenantStore)
         {
             _identificationServices = identificationServices.ToList();
             _tenantStore = tenantStore;
-            _session = session;
         }
 
-        public async Task<bool> Add(Tenant tenant)
+        public async Task<bool> AddAsync(Tenant tenant)
         {
             return await _tenantStore.Add(tenant);
         }
 
         public void ImpersonateUser(Guid userId, Action a)
         {
-            using (var scope = ss.CreateScope())
-            {
-                var session = scope.ServiceProvider.GetRequiredService<ITenantSession>();
-                session.ImpersonatedTenant = new Tenant { TenantId = Guid.NewGuid() };
-                a();
-            }
+            //using (var scope = ss.CreateScope())
+            //{
+            //    var session = scope.ServiceProvider.GetRequiredService<ITenantSession>();
+            //    session.ImpersonatedTenant = new Tenant { TenantId = Guid.NewGuid() };
+            //    a();
+            //}
         }
 
-        public async Task<bool> Delete(Tenant tenant)
+        public async Task<bool> DeleteAsync(Tenant tenant)
         {
             return await _tenantStore.Delete(tenant);
         }
 
-        public async Task<bool> Edit(Tenant tenant)
+        public async Task<bool> EditAsync(Tenant tenant)
         {
             return await _tenantStore.Edit(tenant);
         }
 
-        public async Task<Tenant> GetCurrentTenant()
+        public Tenant GetCurrentTenant()
         {
-            if (_session != null)
-            {
-                return _session.Tenant;
-            }
             if (!_identificationServices.Any())
             {
                 throw new Exception("No identification service is configured");
@@ -62,10 +55,29 @@ namespace NBB.MultiTenant.Services
             Tenant tenant = null;
             foreach (var service in _identificationServices)
             {
-                tenant = await service.GetCurrentTenant();
+                tenant = service.GetCurrentTenant();
                 if (tenant != null)
                 {
-                    _session.Tenant = tenant;
+                    return tenant;
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            if (!_identificationServices.Any())
+            {
+                throw new Exception("No identification service is configured");
+            }
+
+            Tenant tenant = null;
+            foreach (var service in _identificationServices)
+            {
+                tenant = await service.GetCurrentTenantAsync();
+                if (tenant != null)
+                {
                     return tenant;
                 }
             }

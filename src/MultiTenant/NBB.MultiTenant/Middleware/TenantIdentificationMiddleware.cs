@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
 using System.Threading.Tasks;
@@ -20,8 +21,8 @@ namespace NBB.MultiTenant.Pipelines
         /// <param name="context"></param>
         /// <returns></returns>
         public async Task InvokeAsync(HttpContext context, ITenantService tenantService, ITenantSession tenantSession)
-        {
-            var tenant = await tenantService.GetCurrentTenant();
+        {            
+            var tenant = await tenantService.GetCurrentTenantAsync();
 
             if (tenant != null)
             {

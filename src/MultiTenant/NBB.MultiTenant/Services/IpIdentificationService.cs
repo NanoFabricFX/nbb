@@ -10,18 +10,24 @@ namespace NBB.MultiTenant.Services
         private readonly ITenantStore _store;
         private readonly IHttpContextAccessor _accessor;
 
+        public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Ip;
+
         public IpIdentificationService(ITenantStore store, IHttpContextAccessor accessor)
         {
             _store = store;
             _accessor = accessor;
         }
 
-        public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Ip;
-
-        public async Task<Tenant> GetCurrentTenant()
+        public async Task<Tenant> GetCurrentTenantAsync()
         {
             var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
             return await _store.GetByHost(ip);
+        }
+
+        public Tenant GetCurrentTenant()
+        {
+            var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            return _store.GetByHost(ip).GetAwaiter().GetResult();
         }
     }
 }

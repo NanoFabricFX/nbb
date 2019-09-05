@@ -21,7 +21,7 @@ namespace NBB.MultiTenant.EntityFramework
             _tenantService = tenantService;
             _tenantOptions = tenantOptions;
 
-            _tenant = _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
+            _tenant = _tenantService.GetCurrentTenant();
             _connectionString = _tenant.ConnectionString;
         }
 

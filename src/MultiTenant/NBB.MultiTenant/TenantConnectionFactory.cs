@@ -20,7 +20,7 @@ namespace NBB.MultiTenant
 
         public async Task<Func<IDbConnection>> CreateDbConnection()
         {
-            var tenant = await _tenantService.GetCurrentTenant();
+            var tenant = await _tenantService.GetCurrentTenantAsync();
             var tenantConnectionString = _cryptoService.Decrypt(tenant.ConnectionString);
 
             switch (tenant.DatabaseClient)
