@@ -21,20 +21,22 @@ namespace NBB.MultiTenant.Services
             _tenantOptions = tenantOptions;
             _messagingContextAccessor = messagingContextAccessor;
 
-            if (!string.IsNullOrEmpty(tenantOptions.IdentificationOptions.TenantHeadersKey))
-            {
-                _tenantIdKey = tenantOptions.IdentificationOptions.TenantMessagingKey;
-            }
         }
 
         private Guid? GetTenantId()
         {
-            if (!_messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers.ContainsKey(_tenantIdKey))
+            var tenantKey = _tenantIdKey;
+            if (!string.IsNullOrEmpty(_tenantOptions.IdentificationOptions.TenantHeadersKey))
+            {
+                tenantKey = _tenantOptions.IdentificationOptions.TenantMessagingKey;
+            }
+
+            if (!_messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers.ContainsKey(tenantKey))
             {
                 return null;
             }
 
-            var tenantId = _messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers[_tenantIdKey];
+            var tenantId = _messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers[tenantKey];
             if (Guid.TryParse(tenantId, out var guid))
             {
                 return guid;

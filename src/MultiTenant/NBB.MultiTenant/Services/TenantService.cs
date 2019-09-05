@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using NBB.MultiTenant.Abstractions;
+﻿using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
 using System;
 using System.Collections.Generic;
