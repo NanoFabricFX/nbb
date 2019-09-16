@@ -7,6 +7,7 @@ namespace NBB.MultiTenant.EntityFramework.Entities
     {
         public UserRight()
         {
+            FeatureUserRights = new HashSet<FeatureUserRight>();
             RoleUserRights = new HashSet<RoleUserRight>();
         }
 
@@ -14,6 +15,7 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public string Name { get; set; }
         public string Code { get; set; }
 
+        public virtual ICollection<FeatureUserRight> FeatureUserRights { get; set; }
         public virtual ICollection<RoleUserRight> RoleUserRights { get; set; }
     }
 }

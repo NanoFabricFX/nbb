@@ -1,19 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NBB.MultiTenant.EntityFramework
 {
     public class ReadOnlyMultitenantDbContext : BaseMultiTenantDbContext
     {
-        private readonly NBB.MultiTenant.Abstractions.Tenant _tenant;
+        private readonly Tenant _tenant;
         private readonly ICryptoService _cryptoService;
         private readonly ITenantService _tenantService;
         private readonly string _connectionString = null;

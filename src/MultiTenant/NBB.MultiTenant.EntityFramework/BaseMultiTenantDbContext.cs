@@ -42,7 +42,7 @@ namespace NBB.MultiTenant.EntityFramework
 
         public void SetDefaultValue<T>(ModelBuilder modelBuilder, Guid tenantId) where T : class, IMustHaveTenant
         {
-            modelBuilder.Entity<T>().Property("TenantId").HasDefaultValue(tenantId);
+            modelBuilder.Entity<T>().Property(nameof(IMustHaveTenant.TenantId)).HasDefaultValue(tenantId);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -60,8 +60,8 @@ namespace NBB.MultiTenant.EntityFramework
             }
             if (_tenantOptions.UseDatabaseAnnotations)
             {
-                optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation("IMayHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMayHaveTenant").Value)));
-                mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation("IMustHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMustHaveTenant").Value)));
+                optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation(nameof(IMayHaveTenant)) != null && Convert.ToBoolean(p.FindAnnotation(nameof(IMayHaveTenant)).Value)));
+                mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation(nameof(IMustHaveTenant)) != null && Convert.ToBoolean(p.FindAnnotation(nameof(IMustHaveTenant)).Value)));
             }
             optional = optional.Distinct().ToList();
             mandatory = mandatory.Distinct().ToList();
@@ -153,7 +153,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             var optional = Model
                 .GetEntityTypes()
-                .Where(p => p.FindAnnotation("IMightHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMightHaveTenant").Value))
+                .Where(p => p.FindAnnotation("IMightHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMightHaveTenant").Value)) // findproperty din IEntityType. asa crapa
                 .Select(x => x.ClrType)
                 .ToList();
 

@@ -7,6 +7,8 @@ namespace NBB.MultiTenant.EntityFramework.Entities
     {
         public Tenant()
         {
+            TenantFeatures = new HashSet<TenantFeature>();
+            TenantSubcriptions = new HashSet<TenantSubcription>();
             TenantUsers = new HashSet<TenantUser>();
             UserRoles = new HashSet<UserRole>();
         }
@@ -20,6 +22,8 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public Guid OwnerId { get; set; }
 
         public virtual User Owner { get; set; }
+        public virtual ICollection<TenantFeature> TenantFeatures { get; set; }
+        public virtual ICollection<TenantSubcription> TenantSubcriptions { get; set; }
         public virtual ICollection<TenantUser> TenantUsers { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }
     }
