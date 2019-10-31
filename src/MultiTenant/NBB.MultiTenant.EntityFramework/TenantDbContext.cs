@@ -210,9 +210,9 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasIndex(e => e.Email)
-                    .HasName("iUsers_Email")
-                    .IsUnique();
+                //entity.HasIndex(e => e.Email)
+                //    .HasName("iUsers_Email")
+                //    .IsUnique();
 
                 entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
 
