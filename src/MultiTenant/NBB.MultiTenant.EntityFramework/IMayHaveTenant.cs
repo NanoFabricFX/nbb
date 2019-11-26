@@ -2,9 +2,9 @@
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public interface IMayHaveTenant 
+    public interface IMayHaveTenant<T>
     {
-        Guid? TenantId { get; set; }
+        T TenantId { get; set; }
     }
 
     public interface IMustHaveTenantrewdwsx<T>

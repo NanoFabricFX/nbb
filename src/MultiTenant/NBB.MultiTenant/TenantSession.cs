@@ -3,13 +3,14 @@ using System;
 
 namespace NBB.MultiTenant
 {
-    public class TenantSession : ITenantSession
+    public class TenantSession<T> : ITenantSession<T>
     {
         private bool _isUserImpersonated;
         private bool _isTenantImpersonated;
         private string _userId;
 
         private string _impersonatorUserId;
+        private Tenant<T> _tenant;
 
         public string UserId
         {
@@ -26,52 +27,47 @@ namespace NBB.MultiTenant
                 _userId = value;
             }
         }
+        
 
-        public Guid? TenantId
-        {
-            get
-            {
-                if (ImpersonatedTenant != null)
-                {
-                    return ImpersonatedTenant.TenantId;
-                }
-                return Tenant?.TenantId;
-            }
-        }
+        //public bool IsHostUser => !string.IsNullOrEmpty(UserId) && GetTenant<T> == null;
 
-        public string ImpersonatorUserId
-        {
-            get
-            {
-                return _impersonatorUserId;
-            }
-            set
-            {
-                _isUserImpersonated = string.IsNullOrEmpty(value);
-                _impersonatorUserId = value;
-            }
-        }
-
-
-        public Guid? ImpersonatedTenantId => ImpersonatedTenant?.TenantId;
-
-        public Tenant ImpersonatedTenant { get; set; }
-
-        public Tenant Tenant { get; set; }
-
-        public bool IsHostUser => !string.IsNullOrEmpty(UserId) && Tenant == null;
-
-        public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && Tenant != null;
+        //public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && Tenant<T> != null;
 
         public bool IsLoggedIn => !string.IsNullOrEmpty(UserId);
 
-        public string ConnectionString => Tenant?.ConnectionString;
+        //public string ConnectionString => Tenant?.ConnectionString;
 
+        public string ImpersonatorUserId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public string ConnectionString => throw new NotImplementedException();
+
+        public bool IsHostUser => throw new NotImplementedException();
+
+        public bool IsTenantUser => throw new NotImplementedException();
 
         public void Dispose()
         {
             UserId = null;
+        }
+
+        public Tenant<T> GetImpersonatedTenant()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Tenant<T> GetTenant()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetImpersonatedTenant(Tenant<T> tenant)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetTenant(Tenant<T> tenant)
+        {
+            throw new NotImplementedException();
         }
     }
 }

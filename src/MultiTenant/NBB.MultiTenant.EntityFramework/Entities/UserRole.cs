@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class UserRole
+    public partial class UserRole<T>
     {
-        public Guid UserId { get; set; }
-        public Guid RoleId { get; set; }
-        public Guid TenantId { get; set; }
+        public T UserId { get; set; }
+        public T RoleId { get; set; }
+        public T TenantId { get; set; }
 
-        public virtual Role Role { get; set; }
-        public virtual Tenant Tenant { get; set; }
-        public virtual User User { get; set; }
+        public virtual Role<T> Role { get; set; }
+        public virtual Tenant<T> Tenant { get; set; }
+        public virtual User<T> User { get; set; }
     }
 }

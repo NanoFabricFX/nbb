@@ -5,13 +5,13 @@ namespace NBB.MultiTenant.Abstractions
 {
     public interface ITenantStore
     {
-        Task<Tenant> Get(Guid id);
-        Task<Tenant> GetByName(string name);
-        Task<Tenant> GetByHost(string host);
-        Task<Tenant> GetBySourceIp(string sourceIp);
-        Task<Tenant> GetByHostPort(string host, string ip, int localPort, int remotePort);
-        Task<bool> Add(Tenant tenant);
-        Task<bool> Edit(Tenant tenant);
-        Task<bool> Delete(Tenant tenant);
+        Task<Tenant<T>> Get<T>(T id);
+        Task<Tenant<T>> GetByName<T>(string name);
+        Task<Tenant<T>> GetByHost<T>(string host);
+        Task<Tenant<T>> GetBySourceIp<T>(string sourceIp);
+        Task<Tenant<T>> GetByHostPort<T>(string host, string ip, int localPort, int remotePort);
+        Task<bool> Add<T>(Tenant<T> tenant);
+        Task<bool> Edit<T>(Tenant<T> tenant);
+        Task<bool> Delete<T>(Tenant<T> tenant);
     }
 }

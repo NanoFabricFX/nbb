@@ -16,14 +16,14 @@ namespace NBB.MultiTenant.Extensions
         /// <param name="connectionString">Connection string or blob storage parameters</param>
         /// <param name="encryptionKey">Key to encrypt connection string</param>
         /// <returns>Services collection</returns>
-        public static IServiceCollection AddMultiTenantServices(this IServiceCollection services, TenantOptions tenantOptions)
+        public static IServiceCollection AddMultiTenantServices<TKey>(this IServiceCollection services, TenantOptions tenantOptions)
         {
             if (tenantOptions.TenantStoreType == TenantStoreType.Sql)
             {
                 services.AddSingleton<ITenantStore>(provider => new DatabaseTenantStore(tenantOptions.ConnectionString));
             }
 
-            services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
+            services.AddScoped<ITenantConnectionFactory<TKey>, TenantConnectionFactory<TKey>>();
             if (tenantOptions.UseConnectionStringEncryption)
             {
                 services.AddSingleton<ICryptoService>(provider => new AesCryptoService(tenantOptions.EncryptionKey));
@@ -52,7 +52,7 @@ namespace NBB.MultiTenant.Extensions
 
             services.AddScoped(provider =>
             {
-                var connectionFactory = provider.GetService<ITenantConnectionFactory>();
+                var connectionFactory = provider.GetService<ITenantConnectionFactory<TKey>>();
                 return connectionFactory.CreateDbConnection().GetAwaiter().GetResult();
             });
 
@@ -75,7 +75,7 @@ namespace NBB.MultiTenant.Extensions
             //    }
 
             //});
-            services.AddScoped<ITenantSession, TenantSession>();
+            services.AddScoped<ITenantSession<TKey>, TenantSession<TKey>>();
             return services;
         }
 

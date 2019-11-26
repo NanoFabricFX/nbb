@@ -3,31 +3,31 @@ using NBB.MultiTenant.EntityFramework.Entities;
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public partial class TenantDbContext : DbContext
+    public partial class TenantDbContext<T> : DbContext
     {
         public TenantDbContext()
         {
         }
 
-        public TenantDbContext(DbContextOptions<TenantDbContext> options)
+        public TenantDbContext(DbContextOptions<TenantDbContext<T>> options)
             : base(options)
         {
         }
 
-        public virtual DbSet<Feature> Features { get; set; }
-        public virtual DbSet<FeatureUserRight> FeatureUserRights { get; set; }
-        public virtual DbSet<Role> Roles { get; set; }
-        public virtual DbSet<RoleUserRight> RoleUserRights { get; set; }
-        public virtual DbSet<Subscription> Subscriptions { get; set; }
-        public virtual DbSet<SubscriptionFeature> SubscriptionFeatures { get; set; }
-        public virtual DbSet<Tenant> Tenants { get; set; }
-        public virtual DbSet<TenantFeature> TenantFeatures { get; set; }
-        public virtual DbSet<TenantSubcription> TenantSubcriptions { get; set; }
-        public virtual DbSet<TenantUser> TenantUsers { get; set; }
-        public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<UserFeature> UserFeatures { get; set; }
-        public virtual DbSet<UserRight> UserRights { get; set; }
-        public virtual DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<Feature<T>> Features { get; set; }
+        public virtual DbSet<FeatureUserRight<T>> FeatureUserRights { get; set; }
+        public virtual DbSet<Role<T>> Roles { get; set; }
+        public virtual DbSet<RoleUserRight<T>> RoleUserRights { get; set; }
+        public virtual DbSet<Subscription<T>> Subscriptions { get; set; }
+        public virtual DbSet<SubscriptionFeature<T>> SubscriptionFeatures { get; set; }
+        public virtual DbSet<Tenant<T>> Tenants { get; set; }
+        public virtual DbSet<TenantFeature<T>> TenantFeatures { get; set; }
+        public virtual DbSet<TenantSubcription<T>> TenantSubcriptions { get; set; }
+        public virtual DbSet<TenantUser<T>> TenantUsers { get; set; }
+        public virtual DbSet<User<T>> Users { get; set; }
+        public virtual DbSet<UserFeature<T>> UserFeatures { get; set; }
+        public virtual DbSet<UserRight<T>> UserRights { get; set; }
+        public virtual DbSet<UserRole<T>> UserRoles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -40,9 +40,9 @@ namespace NBB.MultiTenant.EntityFramework
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
 
-            modelBuilder.Entity<Feature>(entity =>
+            modelBuilder.Entity<Feature<T>>(entity =>
             {
-                entity.Property(e => e.FeatureId).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.FeatureId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -53,7 +53,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<FeatureUserRight>(entity =>
+            modelBuilder.Entity<FeatureUserRight<T>>(entity =>
             {
                 entity.HasKey(e => new { e.FeatureId, e.UserRightId });
 
@@ -70,7 +70,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_FeatureUserRights_UserRights");
             });
 
-            modelBuilder.Entity<Role>(entity =>
+            modelBuilder.Entity<Role<T>>(entity =>
             {
                 entity.Property(e => e.RoleId).HasDefaultValueSql("(newid())");
 
@@ -83,7 +83,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<RoleUserRight>(entity =>
+            modelBuilder.Entity<RoleUserRight<T>>(entity =>
             {
                 entity.HasKey(e => new { e.UserRightId, e.RoleId });
 
@@ -100,9 +100,9 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_RoleUserRights_UserRights");
             });
 
-            modelBuilder.Entity<Subscription>(entity =>
+            modelBuilder.Entity<Subscription<T>>(entity =>
             {
-                entity.Property(e => e.SubscriptionId).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.SubscriptionId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -113,7 +113,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<SubscriptionFeature>(entity =>
+            modelBuilder.Entity<SubscriptionFeature<T>>(entity =>
             {
                 entity.HasKey(e => new { e.SubcriptionId, e.FeatureId });
 
@@ -132,9 +132,9 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_SubscriptionFeatures_Subscriptions");
             });
 
-            modelBuilder.Entity<Tenant>(entity =>
+            modelBuilder.Entity<Tenant<T>>(entity =>
             {
-                entity.Property(e => e.TenantId).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.TenantId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.ConnectionString).IsRequired();
 
@@ -151,7 +151,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_Tenants_Users");
             });
 
-            modelBuilder.Entity<TenantFeature>(entity =>
+            modelBuilder.Entity<TenantFeature<T>>(entity =>
             {
                 entity.HasKey(e => new { e.TenantId, e.FeatureId });
 
@@ -170,7 +170,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_TenantFeatures_Tenants");
             });
 
-            modelBuilder.Entity<TenantSubcription>(entity =>
+            modelBuilder.Entity<TenantSubcription<T>>(entity =>
             {
                 entity.HasKey(e => new { e.TenantId, e.SubcriptionId, e.StartDate });
 
@@ -191,7 +191,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_TenantSubcriptions_Tenants");
             });
 
-            modelBuilder.Entity<TenantUser>(entity =>
+            modelBuilder.Entity<TenantUser<T>>(entity =>
             {
                 entity.HasKey(e => new { e.TenantId, e.UserId });
 
@@ -208,7 +208,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_TenantUsers_Users");
             });
 
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<User<T>>(entity =>
             {
                 //entity.HasIndex(e => e.Email)
                 //    .HasName("iUsers_Email")
@@ -237,7 +237,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasMaxLength(255);
             });
 
-            modelBuilder.Entity<UserFeature>(entity =>
+            modelBuilder.Entity<UserFeature<T>>(entity =>
             {
                 entity.HasKey(e => new { e.FeatureId, e.UserId });
 
@@ -256,9 +256,9 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasConstraintName("FK_UserFeatures_Users");
             });
 
-            modelBuilder.Entity<UserRight>(entity =>
+            modelBuilder.Entity<UserRight<T>>(entity =>
             {
-                entity.Property(e => e.UserRightId).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.UserRightId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -269,7 +269,7 @@ namespace NBB.MultiTenant.EntityFramework
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<UserRole>(entity =>
+            modelBuilder.Entity<UserRole<T>>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId, e.TenantId });
 

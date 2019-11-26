@@ -25,7 +25,7 @@ namespace NBB.MultiTenant.Repositories
 
         private IDbConnection Connection => new SqlConnection(_connectionString);
 
-        public async Task<Tenant> Get(Guid id)
+        public async Task<Tenant<T>> Get<T>(T id)
         {
             using (var connection = Connection)
             {
@@ -34,13 +34,13 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.TenantId));
-                var result = await connection.QueryAsync<Tenant>(query, new { TenantId = id });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.TenantId));
+                var result = await connection.QueryAsync<Tenant<T>>(query, new { TenantId = id });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<Tenant> GetByName(string name)
+        public async Task<Tenant<T>> GetByName<T>(string name)
         {
             using (var connection = Connection)
             {
@@ -49,13 +49,13 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.Name));
-                var result = await connection.QueryAsync<Tenant>(query, new { Name = name });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.Name));
+                var result = await connection.QueryAsync<Tenant<T>>(query, new { Name = name });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<Tenant> GetByHost(string host)
+        public async Task<Tenant<T>> GetByHost<T>(string host)
         {
             using (var connection = Connection)
             {
@@ -64,13 +64,13 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.Host));
-                var result = await connection.QueryAsync<Tenant>(query, new { Host = host });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.Host));
+                var result = await connection.QueryAsync<Tenant<T>>(query, new { Host = host });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<Tenant> GetBySourceIp(string sourceIp)
+        public async Task<Tenant<T>> GetBySourceIp<T>(string sourceIp)
         {
             if (string.IsNullOrWhiteSpace(sourceIp))
             {
@@ -84,13 +84,13 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant.SourceIp));
-                var result = await connection.QueryAsync<Tenant>(query, new { SourceIp = sourceIp });
+                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant<T>.SourceIp));
+                var result = await connection.QueryAsync<Tenant<T>>(query, new { SourceIp = sourceIp });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<Tenant> GetByHostPort(string host, string ip, int localPort, int remotePort)
+        public async Task<Tenant<T>> GetByHostPort<T>(string host, string ip, int localPort, int remotePort)
         {
             var sourceIp = string.IsNullOrEmpty(ip) ? host : ip;
 
@@ -108,13 +108,13 @@ namespace NBB.MultiTenant.Repositories
                     connection.Open();
                 }
 
-                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant.SourceIp));
-                var result = await connection.QueryAsync<Tenant>(query, new { SourceIp = ipAndPort });
+                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant<T>.SourceIp));
+                var result = await connection.QueryAsync<Tenant<T>>(query, new { SourceIp = ipAndPort });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<bool> Add(Tenant tenant)
+        public async Task<bool> Add<T>(Tenant<T> tenant)
         {
             using (var connection = Connection)
             {
@@ -127,7 +127,7 @@ namespace NBB.MultiTenant.Repositories
             }
         }
 
-        public async Task<bool> Edit(Tenant tenant)
+        public async Task<bool> Edit<T>(Tenant<T> tenant)
         {
             using (var connection = Connection)
             {
@@ -140,7 +140,7 @@ namespace NBB.MultiTenant.Repositories
             }
         }
 
-        public async Task<bool> Delete(Tenant tenant)
+        public async Task<bool> Delete<T>(Tenant<T> tenant)
         {
             using (var connection = Connection)
             {

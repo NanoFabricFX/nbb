@@ -2,9 +2,9 @@
 
 namespace NBB.MultiTenant.Abstractions
 {
-    public class Tenant
+    public class Tenant<T>
     {
-        public Guid TenantId { get; set; }
+        public T TenantId { get; set; }
         public string Name { get; set; }
         public string Host { get; set; }
         public string SourceIp { get; set; }

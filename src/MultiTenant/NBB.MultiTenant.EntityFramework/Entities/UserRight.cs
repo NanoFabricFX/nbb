@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class UserRight
+    public partial class UserRight<T>
     {
         public UserRight()
         {
-            FeatureUserRights = new HashSet<FeatureUserRight>();
-            RoleUserRights = new HashSet<RoleUserRight>();
+            FeatureUserRights = new HashSet<FeatureUserRight<T>>();
+            RoleUserRights = new HashSet<RoleUserRight<T>>();
         }
 
-        public Guid UserRightId { get; set; }
+        public T UserRightId { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
 
-        public virtual ICollection<FeatureUserRight> FeatureUserRights { get; set; }
-        public virtual ICollection<RoleUserRight> RoleUserRights { get; set; }
+        public virtual ICollection<FeatureUserRight<T>> FeatureUserRights { get; set; }
+        public virtual ICollection<RoleUserRight<T>> RoleUserRights { get; set; }
     }
 }

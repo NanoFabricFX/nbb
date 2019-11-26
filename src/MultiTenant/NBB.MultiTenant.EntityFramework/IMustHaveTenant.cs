@@ -2,8 +2,8 @@
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public interface IMustHaveTenant
+    public interface IMustHaveTenant<T>
     {
-        Guid TenantId { get; set; }
+        T TenantId { get; set; }
     }
 }

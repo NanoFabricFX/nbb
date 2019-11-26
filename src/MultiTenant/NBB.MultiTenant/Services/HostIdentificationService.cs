@@ -18,16 +18,16 @@ namespace NBB.MultiTenant.Services
             _accessor = accessor;
         }
 
-        public Tenant GetCurrentTenant()
+        public Tenant<T> GetCurrentTenant<T>()
         {
             var host = _accessor.HttpContext.Request.Host.Host;
-            return _store.GetByHost(host).GetAwaiter().GetResult();
+            return _store.GetByHost<T>(host).GetAwaiter().GetResult();
         }
 
-        public async Task<Tenant> GetCurrentTenantAsync()
+        public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
         {
             var host = _accessor.HttpContext.Request.Host.Host;
-            return await _store.GetByHost(host);
+            return await _store.GetByHost<T>(host);
         }
     }
 }

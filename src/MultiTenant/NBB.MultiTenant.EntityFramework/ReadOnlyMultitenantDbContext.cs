@@ -7,9 +7,9 @@ using System;
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public class ReadOnlyMultitenantDbContext : BaseMultiTenantDbContext
+    public class ReadOnlyMultitenantDbContext<T> : BaseMultiTenantDbContext<T>
     {
-        private readonly Tenant _tenant;
+        private readonly Tenant<T> _tenant;
         private readonly ICryptoService _cryptoService;
         private readonly ITenantService _tenantService;
         private readonly string _connectionString = null;
@@ -21,7 +21,7 @@ namespace NBB.MultiTenant.EntityFramework
             _tenantService = tenantService;
             _tenantOptions = tenantOptions;
 
-            _tenant = _tenantService.GetCurrentTenant();
+            _tenant = _tenantService.GetCurrentTenant<T>();
             _connectionString = _tenant.ConnectionString;
 
             ChangeTracker.AutoDetectChangesEnabled = false;

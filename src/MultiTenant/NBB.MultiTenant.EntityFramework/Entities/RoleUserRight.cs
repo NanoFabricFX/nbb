@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NBB.MultiTenant.EntityFramework.Entities
+﻿namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class RoleUserRight
+    public partial class RoleUserRight<T>
     {
-        public Guid RoleId { get; set; }
-        public Guid UserRightId { get; set; }
+        public T RoleId { get; set; }
+        public T UserRightId { get; set; }
 
-        public virtual Role Role { get; set; }
-        public virtual UserRight UserRight { get; set; }
+        public virtual Role<T> Role { get; set; }
+        public virtual UserRight<T> UserRight { get; set; }
     }
 }

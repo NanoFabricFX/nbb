@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBB.MultiTenant.Messaging
 {
-    public class MultiTenantPublisherDecorator : IMessageBusPublisher
+    public class MultiTenantPublisherDecorator<TKey> : IMessageBusPublisher
     {
         private readonly IMessageBusPublisher _inner;
         private readonly ITenantService _tenantService;
@@ -25,7 +25,7 @@ namespace NBB.MultiTenant.Messaging
         {
             void NewCustomizer(MessagingEnvelope outgoingEnvelope)
             {
-                var tenant =  _tenantService.GetCurrentTenant();
+                var tenant =  _tenantService.GetCurrentTenant<TKey>();
                 if (tenant != null)
                 {
                     outgoingEnvelope.SetHeader(_tenantOptions.IdentificationOptions.TenantMessagingKey, tenant.TenantId.ToString());

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class TenantFeature
+    public partial class TenantFeature<T>
     {
-        public Guid TenantId { get; set; }
-        public Guid FeatureId { get; set; }
+        public T TenantId { get; set; }
+        public T FeatureId { get; set; }
         public decimal? FeatureValue { get; set; }
 
-        public virtual Feature Feature { get; set; }
-        public virtual Tenant Tenant { get; set; }
+        public virtual Feature<T> Feature { get; set; }
+        public virtual Tenant<T> Tenant { get; set; }
     }
 }

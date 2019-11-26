@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class User
+    public partial class User<T>
     {
         public User()
         {
-            TenantUsers = new HashSet<TenantUser>();
-            Tenants = new HashSet<Tenant>();
-            UserFeatures = new HashSet<UserFeature>();
-            UserRoles = new HashSet<UserRole>();
+            TenantUsers = new HashSet<TenantUser<T>>();
+            Tenants = new HashSet<Tenant<T>>();
+            UserFeatures = new HashSet<UserFeature<T>>();
+            UserRoles = new HashSet<UserRole<T>>();
         }
 
         public Guid UserId { get; set; }
@@ -21,9 +21,9 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public string Lastname { get; set; }
         public string Phone { get; set; }
 
-        public virtual ICollection<TenantUser> TenantUsers { get; set; }
-        public virtual ICollection<Tenant> Tenants { get; set; }
-        public virtual ICollection<UserFeature> UserFeatures { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<TenantUser<T>> TenantUsers { get; set; }
+        public virtual ICollection<Tenant<T>> Tenants { get; set; }
+        public virtual ICollection<UserFeature<T>> UserFeatures { get; set; }
+        public virtual ICollection<UserRole<T>> UserRoles { get; set; }
     }
 }

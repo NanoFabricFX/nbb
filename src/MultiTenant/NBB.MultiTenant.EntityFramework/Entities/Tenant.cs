@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class Tenant
+    public partial class Tenant<T>
     {
         public Tenant()
         {
-            TenantFeatures = new HashSet<TenantFeature>();
-            TenantSubcriptions = new HashSet<TenantSubcription>();
-            TenantUsers = new HashSet<TenantUser>();
-            UserRoles = new HashSet<UserRole>();
+            TenantFeatures = new HashSet<TenantFeature<T>>();
+            TenantSubcriptions = new HashSet<TenantSubcription<T>>();
+            TenantUsers = new HashSet<TenantUser<T>>();
+            UserRoles = new HashSet<UserRole<T>>();
         }
 
-        public Guid TenantId { get; set; }
+        public T TenantId { get; set; }
         public string Name { get; set; }
         public string Host { get; set; }
         public string SourceIp { get; set; }
@@ -21,10 +21,10 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public int DatabaseClient { get; set; }
         public Guid OwnerId { get; set; }
 
-        public virtual User Owner { get; set; }
-        public virtual ICollection<TenantFeature> TenantFeatures { get; set; }
-        public virtual ICollection<TenantSubcription> TenantSubcriptions { get; set; }
-        public virtual ICollection<TenantUser> TenantUsers { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual User<T> Owner { get; set; }
+        public virtual ICollection<TenantFeature<T>> TenantFeatures { get; set; }
+        public virtual ICollection<TenantSubcription<T>> TenantSubcriptions { get; set; }
+        public virtual ICollection<TenantUser<T>> TenantUsers { get; set; }
+        public virtual ICollection<UserRole<T>> UserRoles { get; set; }
     }
 }

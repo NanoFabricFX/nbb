@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace NBB.MultiTenant.EntityFramework.Entities
 {
-    public partial class FeatureUserRight
+    public partial class FeatureUserRight<T>
     {
-        public Guid FeatureId { get; set; }
-        public Guid UserRightId { get; set; }
+        public T FeatureId { get; set; }
+        public T UserRightId { get; set; }
 
-        public virtual Feature Feature { get; set; }
-        public virtual UserRight UserRight { get; set; }
+        public virtual Feature<T> Feature { get; set; }
+        public virtual UserRight<T> UserRight { get; set; }
     }
 }

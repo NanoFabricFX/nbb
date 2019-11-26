@@ -19,12 +19,12 @@ namespace NBB.MultiTenant.Services
             _tenantStore = tenantStore;
         }
 
-        public async Task<bool> AddAsync(Tenant tenant)
+        public async Task<bool> AddAsync<T>(Tenant<T> tenant)
         {
             return await _tenantStore.Add(tenant);
         }
 
-        public void ImpersonateUser(Guid userId, Action a)
+        public void ImpersonateUser<T>(T userId, Action a)
         {
             //using (var scope = ss.CreateScope())
             //{
@@ -34,27 +34,27 @@ namespace NBB.MultiTenant.Services
             //}
         }
 
-        public async Task<bool> DeleteAsync(Tenant tenant)
+        public async Task<bool> DeleteAsync<T>(Tenant<T> tenant)
         {
             return await _tenantStore.Delete(tenant);
         }
 
-        public async Task<bool> EditAsync(Tenant tenant)
+        public async Task<bool> EditAsync<T>(Tenant<T> tenant)
         {
             return await _tenantStore.Edit(tenant);
         }
 
-        public Tenant GetCurrentTenant()
+        public Tenant<T> GetCurrentTenant<T>()
         {
             if (!_identificationServices.Any())
             {
                 throw new Exception("No identification service is configured");
             }
 
-            Tenant tenant = null;
+            Tenant<T> tenant = null;
             foreach (var service in _identificationServices)
             {
-                tenant = service.GetCurrentTenant();
+                tenant = service.GetCurrentTenant<T>();
                 if (tenant != null)
                 {
                     return tenant;
@@ -64,17 +64,17 @@ namespace NBB.MultiTenant.Services
             return null;
         }
 
-        public async Task<Tenant> GetCurrentTenantAsync()
+        public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
         {
             if (!_identificationServices.Any())
             {
                 throw new Exception("No identification service is configured");
             }
 
-            Tenant tenant = null;
+            Tenant<T> tenant = null;
             foreach (var service in _identificationServices)
             {
-                tenant = await service.GetCurrentTenantAsync();
+                tenant = await service.GetCurrentTenantAsync<T>();
                 if (tenant != null)
                 {
                     return tenant;

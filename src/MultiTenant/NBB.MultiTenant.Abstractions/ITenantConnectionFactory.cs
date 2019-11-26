@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace NBB.MultiTenant.Abstractions
 {
-    public interface ITenantConnectionFactory
+    public interface ITenantConnectionFactory<T>
     {
         Task<Func<IDbConnection>> CreateDbConnection();
     }

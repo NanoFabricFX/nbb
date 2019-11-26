@@ -20,10 +20,9 @@ namespace NBB.MultiTenant.Services
             _store = store;
             _tenantOptions = tenantOptions;
             _messagingContextAccessor = messagingContextAccessor;
-
         }
 
-        private Guid? GetTenantId()
+        private T GetTenantId<T>()
         {
             var tenantKey = _tenantIdKey;
             if (!string.IsNullOrEmpty(_tenantOptions.IdentificationOptions.TenantHeadersKey))
@@ -33,36 +32,34 @@ namespace NBB.MultiTenant.Services
 
             if (!_messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers.ContainsKey(tenantKey))
             {
-                return null;
+                return default;
             }
 
             var tenantId = _messagingContextAccessor.MessagingContext.ReceivedMessageEnvelope.Headers[tenantKey];
-            if (Guid.TryParse(tenantId, out var guid))
-            {
-                return guid;
-            }
-            return null;
+            return (T)Convert.ChangeType(tenantId, typeof(T));
         }
 
-        public Tenant GetCurrentTenant()
+        public Tenant<T> GetCurrentTenant<T>()
         {
-            var tenantId = GetTenantId();
+            var tenantId = GetTenantId<T>();
 
-            if (tenantId.HasValue)
+            if (tenantId.Equals(default(T)))
             {
-                var tenant = _store.Get(tenantId.Value).GetAwaiter().GetResult();
-                return tenant;
+                return default;
             }
-            return null;
+
+            var tenant = _store.Get(tenantId).GetAwaiter().GetResult();
+            return tenant;
+
         }
 
-        public async Task<Tenant> GetCurrentTenantAsync()
+        public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
         {
-            var tenantId = GetTenantId();
+            var tenantId = GetTenantId<T>();
 
-            if (tenantId.HasValue)
+            if (tenantId != default)
             {
-                var tenant = await _store.Get(tenantId.Value);
+                var tenant = await _store.Get(tenantId);
                 return tenant;
             }
             return null;

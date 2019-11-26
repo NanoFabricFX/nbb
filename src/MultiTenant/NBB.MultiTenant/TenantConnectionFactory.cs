@@ -7,7 +7,7 @@ using NBB.MultiTenant.Abstractions.Services;
 
 namespace NBB.MultiTenant
 {
-    public sealed class TenantConnectionFactory : ITenantConnectionFactory
+    public sealed class TenantConnectionFactory<T> : ITenantConnectionFactory<T>
     {
         private readonly ITenantService _tenantService;
         private readonly ICryptoService _cryptoService;
@@ -20,7 +20,7 @@ namespace NBB.MultiTenant
 
         public async Task<Func<IDbConnection>> CreateDbConnection()
         {
-            var tenant = await _tenantService.GetCurrentTenantAsync();
+            var tenant = await _tenantService.GetCurrentTenantAsync<T>();
             var tenantConnectionString = _cryptoService.Decrypt(tenant.ConnectionString);
 
             switch (tenant.DatabaseClient)

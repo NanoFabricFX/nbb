@@ -2,18 +2,17 @@
 
 namespace NBB.MultiTenant.Abstractions
 {
-    public interface ITenantSession : IDisposable
+    public interface ITenantSession<T>: IDisposable
     {
         string UserId { get; set; }
-        Guid? TenantId { get; }
         bool IsHostUser { get; }
         bool IsTenantUser { get; }
-        bool IsLoggedIn { get; }
-        string ImpersonatorUserId { get; set; }
-        Guid? ImpersonatedTenantId { get; }
+        bool IsLoggedIn { get; }        
         string ConnectionString { get; }
+        void SetTenant(Tenant<T> tenant);
+        Tenant<T> GetTenant();
 
-        Tenant Tenant { get; set; }
-        Tenant ImpersonatedTenant { get; set; }
+        void SetImpersonatedTenant(Tenant<T> tenant);
+        Tenant<T> GetImpersonatedTenant();
     }
 }

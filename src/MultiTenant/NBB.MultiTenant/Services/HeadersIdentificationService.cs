@@ -20,31 +20,33 @@ namespace NBB.MultiTenant.Services
             _store = store;
             _tenantOptions = tenantOptions;
             _accessor = accessor;
-        }        
+        }
 
-        public Tenant GetCurrentTenant()
+        public Tenant<T> GetCurrentTenant<T>()
         {
-            var tenantId = GetTenantId();
-            if (tenantId.HasValue)
+            var tenantId = GetTenantId<T>();
+            var defaultd = default(T);
+            if (tenantId.Equals(defaultd))
             {
-                var tenant = _store.Get(tenantId.Value).GetAwaiter().GetResult();
+                var tenant = _store.Get<T>(tenantId).GetAwaiter().GetResult();
                 return tenant;
             }
             return null;
         }
 
-        public async Task<Tenant> GetCurrentTenantAsync()
+        public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
         {
-            var tenantId = GetTenantId();
-            if (tenantId.HasValue)
+            var tenantId = GetTenantId<T>();
+            var defaultd = default(T);
+            if (tenantId.Equals(defaultd))
             {
-                var tenant = await _store.Get(tenantId.Value);
+                var tenant = await _store.Get(tenantId);
                 return tenant;
             }
             return null;
         }
 
-        private Guid? GetTenantId()
+        private T GetTenantId<T>()
         {
             var tenantKey = _tenantIdKey;
             var context = _accessor.HttpContext;
@@ -55,16 +57,12 @@ namespace NBB.MultiTenant.Services
 
             if (!context.Request.Headers.ContainsKey(tenantKey))
             {
-                return null;
+                return default(T);
             }
 
             var tenantId = context.Request.Headers[tenantKey];
-
-            if (Guid.TryParse(tenantId, out var guid))
-            {
-                return guid;
-            }
-            return null;
+            var tenant = (T)Convert.ChangeType(tenantId, typeof(T));
+            return tenant;
         }
     }
 }

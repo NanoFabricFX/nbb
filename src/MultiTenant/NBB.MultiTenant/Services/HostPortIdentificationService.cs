@@ -18,22 +18,22 @@ namespace NBB.MultiTenant.Services
             _accessor = accessor;
         }
 
-        public Tenant GetCurrentTenant()
+        public Tenant<T> GetCurrentTenant<T>()
         {
             var host = _accessor.HttpContext.Request.Host.Host;
             var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
             var localPort = _accessor.HttpContext.Connection.LocalPort;
             var remotePort = _accessor.HttpContext.Connection.RemotePort;
-            return _store.GetByHost(host).GetAwaiter().GetResult();
+            return _store.GetByHost<T>(host).GetAwaiter().GetResult();
         }
 
-        public async Task<Tenant> GetCurrentTenantAsync()
+        public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
         {
             var host = _accessor.HttpContext.Request.Host.Host;
             var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
             var localPort = _accessor.HttpContext.Connection.LocalPort;
             var remotePort = _accessor.HttpContext.Connection.RemotePort;
-            return await _store.GetByHost(host);
+            return await _store.GetByHost<T>(host);
         }
     }
 }

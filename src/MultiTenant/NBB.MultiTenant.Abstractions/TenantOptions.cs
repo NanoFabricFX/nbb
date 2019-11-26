@@ -9,8 +9,7 @@
         public TenantStoreType TenantStoreType { get; set; } = TenantStoreType.Sql;
 
         public TenantIdentificationOptions IdentificationOptions { get; set; } = new TenantIdentificationOptions();
-        public bool UseDatabaseAnnotations { get; set; } = true;
-        public bool UseDatabaseInheritance { get; set; } = true;
+        public bool UseDefaultValueOnInsert { get; set; } = true;        
         public bool RestrictCrossTenantAccess { get; set; } = true;
 
         public TenantOptions()

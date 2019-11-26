@@ -7,9 +7,9 @@ using System;
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public abstract class MultiTenantDbContext : BaseMultiTenantDbContext
+    public abstract class MultiTenantDbContext<T> : BaseMultiTenantDbContext<T>
     {
-        private readonly Tenant _tenant;
+        private readonly Tenant<T> _tenant;
         private readonly ICryptoService _cryptoService;
         private readonly ITenantService _tenantService;
         private readonly string _connectionString = null;
@@ -21,7 +21,7 @@ namespace NBB.MultiTenant.EntityFramework
             _tenantService = tenantService;
             _tenantOptions = tenantOptions;
 
-            _tenant = _tenantService.GetCurrentTenant();
+            _tenant = _tenantService.GetCurrentTenant<T>();
             _connectionString = _tenant.ConnectionString;
         }
 
@@ -45,38 +45,69 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            ApplyDefaultValues(modelBuilder);
+            if (_tenantOptions.UseDefaultValueOnInsert)
+            {
+                ApplyDefaultValues(modelBuilder);
+            }
             base.OnModelCreating(modelBuilder);
         }
 
         public override int SaveChanges()
         {
-            UpdateDefaultTenantId(_tenant);
-            ThrowIfMultipleTenants(_tenant);
+            if (_tenantOptions.UseDefaultValueOnInsert)
+            {
+                UpdateDefaultTenantId(_tenant);
+            }
+
+            if (!_tenantOptions.RestrictCrossTenantAccess)
+            {
+                ThrowIfMultipleTenants(_tenant);
+            }            
 
             return base.SaveChanges();
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            UpdateDefaultTenantId(_tenant);
-            ThrowIfMultipleTenants(_tenant);
+            if (_tenantOptions.UseDefaultValueOnInsert)
+            {
+                UpdateDefaultTenantId(_tenant);
+            }
+
+            if (!_tenantOptions.RestrictCrossTenantAccess)
+            {
+                ThrowIfMultipleTenants(_tenant);
+            }
 
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
-            UpdateDefaultTenantId(_tenant);
-            ThrowIfMultipleTenants(_tenant);
+            if (_tenantOptions.UseDefaultValueOnInsert)
+            {
+                UpdateDefaultTenantId(_tenant);
+            }
+
+            if (!_tenantOptions.RestrictCrossTenantAccess)
+            {
+                ThrowIfMultipleTenants(_tenant);
+            }
 
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            UpdateDefaultTenantId(_tenant);
-            ThrowIfMultipleTenants(_tenant);
+            if (_tenantOptions.UseDefaultValueOnInsert)
+            {
+                UpdateDefaultTenantId(_tenant);
+            }
+
+            if (!_tenantOptions.RestrictCrossTenantAccess)
+            {
+                ThrowIfMultipleTenants(_tenant);
+            }
 
             return base.SaveChangesAsync(cancellationToken);
         }

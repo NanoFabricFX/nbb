@@ -29,5 +29,9 @@
     <ProjectReference Include="..\..\Messaging\NBB.Messaging.Abstractions\NBB.Messaging.Abstractions.csproj" />
     <ProjectReference Include="..\NBB.MultiTenant.Abstractions\NBB.MultiTenant.Abstractions.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
   
 </Project>
