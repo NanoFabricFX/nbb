@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
+using NBB.MultiTenant.Options;
 using NBB.MultiTenant.Repositories;
 using NBB.MultiTenant.Services;
 using System;
+using System.Collections.Concurrent;
 
 namespace NBB.MultiTenant.Extensions
 {
@@ -35,19 +38,40 @@ namespace NBB.MultiTenant.Extensions
 
             services.AddSingleton<ITenantService, TenantService>();
 
-            if (tenantOptions.IdentificationOptions.UseHeaders)
+            if (tenantOptions.IdentificationOptions.RegisteredServices?.Count == 0 && tenantOptions.IdentificationOptions.IdentitificationTypes?.Count == 0)
             {
-                services.AddSingleton<ITenantIdentificationService, HeadersIdentificationService>();
+                tenantOptions.IdentificationOptions.WithDefaultOptions();
             }
 
-            if (tenantOptions.IdentificationOptions.UseHost)
+            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.Headers))
             {
-                services.AddSingleton<ITenantIdentificationService, HostIdentificationService>();
+                tenantOptions.IdentificationOptions.AddIdentificationService<HeadersIdentificationService>();
             }
 
-            if (tenantOptions.IdentificationOptions.UseMessagingHeaders)
+            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.Host))
             {
-                services.AddSingleton<ITenantIdentificationService, MessagingIdentificationService>();
+                tenantOptions.IdentificationOptions.AddIdentificationService<HostIdentificationService>();
+            }
+
+            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.MessagingHeaders))
+            {
+                tenantOptions.IdentificationOptions.AddIdentificationService<MessagingIdentificationService>();
+            }
+
+            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.Ip))
+            {
+                tenantOptions.IdentificationOptions.AddIdentificationService<IpIdentificationService>();
+            }
+
+            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.HostPort))
+            {
+                tenantOptions.IdentificationOptions.AddIdentificationService<HostPortIdentificationService>();
+            }
+
+
+            foreach (var serviceType in tenantOptions.IdentificationOptions.RegisteredServices)
+            {
+                services.AddSingleton(typeof(ITenantIdentificationService), serviceType);
             }
 
             services.AddScoped(provider =>
@@ -76,6 +100,7 @@ namespace NBB.MultiTenant.Extensions
 
             //});
             services.AddScoped<ITenantSession<TKey>, TenantSession<TKey>>();
+            services.AddScoped<ITenantSession, TenantSession<TKey>>();
             return services;
         }
 
@@ -93,8 +118,59 @@ namespace NBB.MultiTenant.Extensions
             //}
             return services;
         }
+
+        /// <summary>
+        /// Register tenant specific options
+        /// </summary>
+        /// <typeparam name="TOptions">Type of options we are apply configuration to</typeparam>
+        /// <param name="tenantOptionsConfiguration">Action to configure options for a tenant</param>
+        /// <returns></returns>
+        public static IServiceCollection WithPerTenantOptions<TOptions, T>(this IServiceCollection services, Action<TOptions, T> tenantConfig) where TOptions : class, new() where T : class, new()
+        {
+            //Register the multi-tenant cache
+            services.AddSingleton<IOptionsMonitorCache<TOptions>>(a => ActivatorUtilities.CreateInstance<TenantOptionsCache<TOptions, T>>(a));
+
+            //Register the multi-tenant options factory
+            services.AddTransient<IOptionsFactory<TOptions>>(a => ActivatorUtilities.CreateInstance<TenantOptionsFactory<TOptions, T>>(a, tenantConfig));
+
+            //Register IOptionsSnapshot support
+            services.AddScoped<IOptionsSnapshot<TOptions>>(a => ActivatorUtilities.CreateInstance<TenantOptions<TOptions>>(a));
+
+            //Register IOptions support
+            services.AddSingleton<IOptions<TOptions>>(a => ActivatorUtilities.CreateInstance<TenantOptions<TOptions>>(a));
+
+            return services;
+        }
+
+        //private static ConcurrentDictionary<TenantSingletonKey<string>, object> _cache = new ConcurrentDictionary<TenantSingletonKey<string>, object>();
+
+        //public static IServiceCollection AddPerTenantSingleton<TInterface, TImplementation, TTenantKey>(this IServiceCollection services, ITenantService tenantService) where TImplementation : class, TInterface where TInterface : class
+        //{
+        //    services.AddSingleton<TInterface, TImplementation>((s) =>
+        //    {
+
+        //        var tenant = tenantService.GetCurrentTenant<TTenantKey>();
+        //        var key = new TenantSingletonKey<string>
+        //        {
+        //            TenantId = tenant.TenantId.ToString(),
+        //            Interface = typeof(TInterface)
+        //        };
+        //        var impl = _cache.GetOrAdd(key, (u) =>
+        //        {
+        //            var implementation = ActivatorUtilities.CreateInstance<TImplementation>(services);
+        //            return implementation;
+        //        });
+        //        return (TImplementation)impl;
+        //    });
+        //    return services;
+        //}
     }
 
+    class TenantSingletonKey<T>
+    {
+        public T TenantId { get; set; }
+        public Type Interface { get; set; }
+    }
     //class ExampleService
     //{
 

@@ -29,5 +29,17 @@ namespace NBB.MultiTenant.Services
             var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
             return _store.GetByHost<T>(ip).GetAwaiter().GetResult();
         }
+
+        public Tenant GetCurrentTenant()
+        {
+            var tenant = GetCurrentTenant<object>();
+            return tenant;
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            var tenant = await GetCurrentTenantAsync<object>();
+            return tenant;
+        }
     }
 }

@@ -12,6 +12,8 @@
         public bool UseDefaultValueOnInsert { get; set; } = true;        
         public bool RestrictCrossTenantAccess { get; set; } = true;
 
+        public bool IsReadOnly { get; set; }
+
         public TenantOptions()
         {
 

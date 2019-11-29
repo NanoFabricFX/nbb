@@ -4,6 +4,8 @@ namespace NBB.MultiTenant.Abstractions.Services
 {
     public interface ITenantService
     {
+        Tenant GetCurrentTenant();
+        Task<Tenant> GetCurrentTenantAsync();
         Tenant<T> GetCurrentTenant<T>();
         Task<Tenant<T>> GetCurrentTenantAsync<T>();
         Task<bool> AddAsync<T>(Tenant<T> tenant);

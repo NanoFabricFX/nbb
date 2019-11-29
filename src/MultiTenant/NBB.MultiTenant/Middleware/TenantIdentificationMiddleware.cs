@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace NBB.MultiTenant.Pipelines
 {
-    public class TenantIdentificationMiddleware<T>
+    public class TenantIdentificationMiddleware
     {
         private readonly RequestDelegate _next;
 
@@ -19,9 +20,9 @@ namespace NBB.MultiTenant.Pipelines
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task InvokeAsync(HttpContext context, ITenantService tenantService, ITenantSession<T> tenantSession)
+        public async Task InvokeAsync(HttpContext context, ITenantService tenantService, ITenantSession tenantSession)
         {            
-            var tenant = await tenantService.GetCurrentTenantAsync<T>();
+            var tenant = await tenantService.GetCurrentTenantAsync();
 
             if (tenant != null)
             {
@@ -30,6 +31,14 @@ namespace NBB.MultiTenant.Pipelines
 
             // Call the next delegate/middleware in the pipeline
             await _next(context);
+        }
+    }
+
+    public class Mimi
+    {
+        public Mimi(ITenantSession<Guid> tenantSession)
+        {
+
         }
     }
 }

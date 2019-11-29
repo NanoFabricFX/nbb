@@ -44,20 +44,57 @@ namespace NBB.MultiTenant.Services
             return await _tenantStore.Edit(tenant);
         }
 
+        public Tenant GetCurrentTenant()
+        {
+            if (!_identificationServices.Any())
+            {
+                throw new Exception("No identification services configured");
+            }
+
+            foreach (var service in _identificationServices)
+            {
+                var tenant = service.GetCurrentTenant();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            if (!_identificationServices.Any())
+            {
+                throw new Exception("No identification services configured");
+            }
+
+            foreach (var service in _identificationServices)
+            {
+                var tenant = await service.GetCurrentTenantAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+
+            return null;
+        }
+
         public Tenant<T> GetCurrentTenant<T>()
         {
             if (!_identificationServices.Any())
             {
-                throw new Exception("No identification service is configured");
+                throw new Exception("No identification services configured");
             }
 
-            Tenant<T> tenant = null;
             foreach (var service in _identificationServices)
             {
-                tenant = service.GetCurrentTenant<T>();
+                var tenant = service.GetCurrentTenant<T>();
                 if (tenant != null)
                 {
-                    return tenant;
+                    return tenant as Tenant<T>;
                 }
             }
 
@@ -68,13 +105,12 @@ namespace NBB.MultiTenant.Services
         {
             if (!_identificationServices.Any())
             {
-                throw new Exception("No identification service is configured");
+                throw new Exception("No identification services configured");
             }
 
-            Tenant<T> tenant = null;
             foreach (var service in _identificationServices)
             {
-                tenant = await service.GetCurrentTenantAsync<T>();
+                var tenant = await service.GetCurrentTenantAsync<T>();
                 if (tenant != null)
                 {
                     return tenant;

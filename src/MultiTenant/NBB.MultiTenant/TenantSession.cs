@@ -57,7 +57,7 @@ namespace NBB.MultiTenant
 
         public Tenant<T> GetTenant()
         {
-            throw new NotImplementedException();
+            return _tenant;
         }
 
         public void SetImpersonatedTenant(Tenant<T> tenant)
@@ -65,9 +65,29 @@ namespace NBB.MultiTenant
             throw new NotImplementedException();
         }
 
-        public void SetTenant(Tenant<T> tenant)
+        public void SetImpersonatedTenant(Tenant tenant)
         {
             throw new NotImplementedException();
+        }
+
+        public void SetTenant(Tenant<T> tenant)
+        {
+            _tenant = tenant;
+        }
+
+        public void SetTenant(Tenant tenant)
+        {
+            _tenant = tenant as Tenant<T>;
+        }
+
+        Tenant ITenantSession.GetImpersonatedTenant()
+        {
+            throw new NotImplementedException();
+        }
+
+        Tenant ITenantSession.GetTenant()
+        {
+            return _tenant;
         }
     }
 }

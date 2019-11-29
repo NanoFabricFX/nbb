@@ -5,13 +5,14 @@ namespace NBB.MultiTenant.EntityFramework
 {
     public partial class TenantDbContext<T> : DbContext
     {
-        public TenantDbContext()
-        {
-        }
-
         public TenantDbContext(DbContextOptions<TenantDbContext<T>> options)
             : base(options)
         {
+        }
+
+        protected TenantDbContext(DbContextOptions options): base(options)
+        {
+
         }
 
         public virtual DbSet<Feature<T>> Features { get; set; }
@@ -29,12 +30,7 @@ namespace NBB.MultiTenant.EntityFramework
         public virtual DbSet<UserRight<T>> UserRights { get; set; }
         public virtual DbSet<UserRole<T>> UserRoles { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-            }
-        }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,6 +38,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<Feature<T>>(entity =>
             {
+                entity.HasKey(e => e.FeatureId);
                 entity.Property(e => e.FeatureId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
@@ -72,7 +69,8 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<Role<T>>(entity =>
             {
-                entity.Property(e => e.RoleId).HasDefaultValueSql("(newid())");
+                entity.HasKey(e => e.RoleId);
+                entity.Property(e => e.RoleId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -102,6 +100,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<Subscription<T>>(entity =>
             {
+                entity.HasKey(e => e.SubscriptionId);
                 entity.Property(e => e.SubscriptionId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
@@ -134,6 +133,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<Tenant<T>>(entity =>
             {
+                entity.HasKey(e => e.TenantId);
                 entity.Property(e => e.TenantId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.ConnectionString).IsRequired();
@@ -214,7 +214,9 @@ namespace NBB.MultiTenant.EntityFramework
                 //    .HasName("iUsers_Email")
                 //    .IsUnique();
 
-                entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
+                entity.HasKey(e => e.UserId);
+
+                entity.Property(e => e.UserId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Email)
                     .IsRequired()
@@ -258,6 +260,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<UserRight<T>>(entity =>
             {
+                entity.HasKey(x => x.UserRightId);
                 entity.Property(e => e.UserRightId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)

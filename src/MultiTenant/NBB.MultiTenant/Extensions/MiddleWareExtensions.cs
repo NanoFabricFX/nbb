@@ -14,7 +14,7 @@ namespace NBB.MultiTenant.Extensions
         public static IApplicationBuilder UseTenantIdentificationMiddleware<T>(
             this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<TenantIdentificationMiddleware<T>>();
+            return builder.UseMiddleware<TenantIdentificationMiddleware>();
         }
     }
 }

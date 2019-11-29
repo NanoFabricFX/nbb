@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
+using NBB.MultiTenant.Extensions;
 using System;
 using System.Threading.Tasks;
 
@@ -22,13 +23,13 @@ namespace NBB.MultiTenant.Services
             _accessor = accessor;
         }
 
-        public Tenant<T> GetCurrentTenant<T>()
+        public Tenant GetCurrentTenant()
         {
-            var tenantId = GetTenantId<T>();
-            var defaultd = default(T);
-            if (tenantId.Equals(defaultd))
+            var tenantId = GetTenantId<object>();
+
+            if (!tenantId.IsNullOrDefault())
             {
-                var tenant = _store.Get<T>(tenantId).GetAwaiter().GetResult();
+                var tenant = _store.Get(tenantId).GetAwaiter().GetResult();
                 return tenant;
             }
             return null;
@@ -37,8 +38,7 @@ namespace NBB.MultiTenant.Services
         public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
         {
             var tenantId = GetTenantId<T>();
-            var defaultd = default(T);
-            if (tenantId.Equals(defaultd))
+            if (!tenantId.IsNullOrDefault())
             {
                 var tenant = await _store.Get(tenantId);
                 return tenant;
@@ -63,6 +63,18 @@ namespace NBB.MultiTenant.Services
             var tenantId = context.Request.Headers[tenantKey];
             var tenant = (T)Convert.ChangeType(tenantId, typeof(T));
             return tenant;
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            var tenant = await GetCurrentTenantAsync<object>();
+            return tenant;
+        }
+
+        public Tenant<T> GetCurrentTenant<T>()
+        {
+            var tenant = GetCurrentTenant();
+            return tenant as Tenant<T>;
         }
     }
 }

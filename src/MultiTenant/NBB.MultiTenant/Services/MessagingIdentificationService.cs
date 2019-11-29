@@ -13,7 +13,7 @@ namespace NBB.MultiTenant.Services
         private readonly TenantOptions _tenantOptions;
         private readonly MessagingContextAccessor _messagingContextAccessor;
 
-        public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Messaging;
+        public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.MessagingHeaders;
 
         public MessagingIdentificationService(ITenantStore store, TenantOptions tenantOptions, MessagingContextAccessor messagingContextAccessor)
         {
@@ -63,6 +63,18 @@ namespace NBB.MultiTenant.Services
                 return tenant;
             }
             return null;
+        }
+
+        public Tenant GetCurrentTenant()
+        {
+            var tenant = GetCurrentTenant<object>();
+            return tenant;
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            var tenant = await GetCurrentTenantAsync<object>();
+            return tenant;
         }
     }
 }

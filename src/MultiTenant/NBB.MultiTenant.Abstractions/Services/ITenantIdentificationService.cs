@@ -4,6 +4,8 @@ namespace NBB.MultiTenant.Abstractions.Services
 {
     public interface ITenantIdentificationService
     {
+        Tenant GetCurrentTenant();
+        Task<Tenant> GetCurrentTenantAsync();
         Tenant<T> GetCurrentTenant<T>();
         Task<Tenant<T>> GetCurrentTenantAsync<T>();
         TenantIdentificationType TenantIdentificationType { get; }
@@ -12,7 +14,7 @@ namespace NBB.MultiTenant.Abstractions.Services
     public enum TenantIdentificationType
     {
         Host = 0,
-        Messaging = 1,
+        MessagingHeaders = 1,
         Headers = 2,
         Ip = 3,
         HostPort = 4

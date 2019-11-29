@@ -35,5 +35,17 @@ namespace NBB.MultiTenant.Services
             var remotePort = _accessor.HttpContext.Connection.RemotePort;
             return await _store.GetByHost<T>(host);
         }
+
+        public Tenant GetCurrentTenant()
+        {
+            var tenant = GetCurrentTenant<object>();
+            return tenant;
+        }
+
+        public async Task<Tenant> GetCurrentTenantAsync()
+        {
+            var tenant = await GetCurrentTenantAsync<object>();
+            return tenant;
+        }
     }
 }
