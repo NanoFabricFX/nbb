@@ -15,9 +15,6 @@ namespace NBB.MultiTenant
         public IServiceScope CreateScope()
         {
             var scope = _serviceProvider.CreateScope();
-
-            
-            //scope.
             return scope;
         }
     }

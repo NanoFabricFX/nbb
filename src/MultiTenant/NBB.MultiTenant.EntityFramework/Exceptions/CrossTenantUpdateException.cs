@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NBB.MultiTenant.EntityFramework
+namespace NBB.MultiTenant.EntityFramework.Exceptions
 {
     public class CrossTenantUpdateException<T> : ApplicationException
     {

@@ -9,6 +9,9 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
+using NBB.MultiTenant.EntityFramework.Abstractions;
+using NBB.MultiTenant.EntityFramework.Extensions;
+using NBB.MultiTenant.EntityFramework.Exceptions;
 
 namespace NBB.MultiTenant.EntityFramework
 {

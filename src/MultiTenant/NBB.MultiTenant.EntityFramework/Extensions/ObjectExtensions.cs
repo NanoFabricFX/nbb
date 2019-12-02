@@ -1,4 +1,4 @@
-﻿namespace NBB.MultiTenant.EntityFramework
+﻿namespace NBB.MultiTenant.EntityFramework.Extensions
 {
     public static class ObjectExtensions
     {

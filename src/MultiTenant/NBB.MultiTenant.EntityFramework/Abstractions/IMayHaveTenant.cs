@@ -1,4 +1,4 @@
-﻿namespace NBB.MultiTenant.EntityFramework
+﻿namespace NBB.MultiTenant.EntityFramework.Abstractions
 {
     public interface IMayHaveTenant<T>
     {
