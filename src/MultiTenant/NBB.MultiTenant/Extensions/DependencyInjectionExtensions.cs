@@ -70,7 +70,7 @@ namespace NBB.MultiTenant.Extensions
             });
 
             services.AddSingleton(s => tenantOptions);
-            services.AddScoped<ITenantSession>(s =>
+            TenantSession<TKey> factory(IServiceProvider s)
             {
                 using (var scope = s.CreateScope())
                 {
@@ -84,10 +84,10 @@ namespace NBB.MultiTenant.Extensions
                     tenantSession.SetTenant(tenant);
                     return tenantSession;
                 }
+            }
 
-            });
-            services.AddScoped<ITenantSession<TKey>, TenantSession<TKey>>();
-            services.AddScoped<ITenantSession, TenantSession<TKey>>();
+            services.AddScoped<ITenantSession>(factory);
+            services.AddScoped<ITenantSession<TKey>, TenantSession<TKey>>(factory);
             return services;
         }
 
