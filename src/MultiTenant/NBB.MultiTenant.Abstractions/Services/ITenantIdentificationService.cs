@@ -13,10 +13,11 @@ namespace NBB.MultiTenant.Abstractions.Services
 
     public enum TenantIdentificationType
     {
-        Host = 0,
-        MessagingHeaders = 1,
-        Headers = 2,
-        Ip = 3,
-        HostPort = 4
+        Custom = 0,
+        Host = 1,
+        MessagingHeaders = 2,
+        Headers = 3,
+        Ip = 4,
+        HostPort = 5
     }
 }

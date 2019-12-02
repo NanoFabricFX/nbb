@@ -12,7 +12,7 @@ namespace NBB.MultiTenant.Abstractions
         public List<Type> RegisteredServices { get; protected set; } = new List<Type>();
         public TenantIdentificationOptions WithDefaultOptions()
         {
-            IdentitificationTypes = new List<TenantIdentificationType> { TenantIdentificationType.Headers, TenantIdentificationType.Host, TenantIdentificationType.Ip, TenantIdentificationType.MessagingHeaders };
+            IdentitificationTypes = new List<TenantIdentificationType> { TenantIdentificationType.Headers, TenantIdentificationType.MessagingHeaders, TenantIdentificationType.Host, TenantIdentificationType.Ip, TenantIdentificationType.HostPort };
             return this;
         }
 
