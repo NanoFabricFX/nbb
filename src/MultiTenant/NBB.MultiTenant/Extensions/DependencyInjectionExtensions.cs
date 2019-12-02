@@ -3,10 +3,8 @@ using Microsoft.Extensions.Options;
 using NBB.MultiTenant.Abstractions;
 using NBB.MultiTenant.Abstractions.Services;
 using NBB.MultiTenant.Options;
-using NBB.MultiTenant.Repositories;
 using NBB.MultiTenant.Services;
 using System;
-using System.Collections.Concurrent;
 
 namespace NBB.MultiTenant.Extensions
 {
@@ -21,20 +19,12 @@ namespace NBB.MultiTenant.Extensions
         /// <returns>Services collection</returns>
         public static IServiceCollection AddMultiTenantServices<TKey>(this IServiceCollection services, TenantOptions tenantOptions)
         {
-            if (tenantOptions.TenantStoreType == TenantStoreType.Sql)
-            {
-                services.AddSingleton<ITenantStore>(provider => new DatabaseTenantStore(tenantOptions.ConnectionString));
-            }
+
+            services.AddSingleton(typeof(ITenantStore), tenantOptions.TenantStoreType);
+            services.AddSingleton(typeof(ICryptoService), tenantOptions.CryptoServiceType);
 
             services.AddScoped<ITenantConnectionFactory<TKey>, TenantConnectionFactory<TKey>>();
-            if (tenantOptions.UseConnectionStringEncryption)
-            {
-                services.AddSingleton<ICryptoService>(provider => new AesCryptoService(tenantOptions.EncryptionKey));
-            }
-            else
-            {
-                services.AddSingleton<ICryptoService, NoopCryptoService>();
-            }
+            
 
             services.AddSingleton<ITenantService, TenantService>();
 
@@ -68,7 +58,6 @@ namespace NBB.MultiTenant.Extensions
                 tenantOptions.IdentificationOptions.AddIdentificationService<HostPortIdentificationService>();
             }
 
-
             foreach (var serviceType in tenantOptions.IdentificationOptions.RegisteredServices)
             {
                 services.AddSingleton(typeof(ITenantIdentificationService), serviceType);
@@ -81,43 +70,28 @@ namespace NBB.MultiTenant.Extensions
             });
 
             services.AddSingleton(s => tenantOptions);
-            //services.AddScoped<ITenantSession>(s =>
-            //{
-            //    using (var scope = s.CreateScope())
-            //    {
-            //        var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
-            //        var tenant = tenantService.GetCurrentTenant();
-            //        if (tenant == null)
-            //        {
-            //            return null;
-            //        }
-            //        var tenantSession = new TenantSession
-            //        {
-            //            Tenant = tenant
-            //        };
-            //        return tenantSession;
-            //    }
+            services.AddScoped<ITenantSession>(s =>
+            {
+                using (var scope = s.CreateScope())
+                {
+                    var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
+                    var tenant = tenantService.GetCurrentTenant();
+                    if (tenant == null)
+                    {
+                        return null;
+                    }
+                    var tenantSession = new TenantSession<TKey>();
+                    tenantSession.SetTenant(tenant);
+                    return tenantSession;
+                }
 
-            //});
+            });
             services.AddScoped<ITenantSession<TKey>, TenantSession<TKey>>();
             services.AddScoped<ITenantSession, TenantSession<TKey>>();
             return services;
         }
 
-        public static IServiceCollection AddTenantFeatureResolver(this IServiceCollection services, TenantOptions tenantOptions)
-        {
-            ////var services = new ServiceCollection();
-            //services.AddScoped<ExampleService>();
-            //var globalProvider = services.BuildServiceProvider();
 
-            //using (var scope = globalProvider.CreateScope())
-            //{
-            //    var localScoped = scope.ServiceProvider.GetService<ExampleService>();
-
-            //    var globalScoped = globalProvider.GetService<ExampleService>();
-            //}
-            return services;
-        }
 
         /// <summary>
         /// Register tenant specific options
@@ -142,63 +116,5 @@ namespace NBB.MultiTenant.Extensions
             return services;
         }
 
-        //private static ConcurrentDictionary<TenantSingletonKey<string>, object> _cache = new ConcurrentDictionary<TenantSingletonKey<string>, object>();
-
-        //public static IServiceCollection AddPerTenantSingleton<TInterface, TImplementation, TTenantKey>(this IServiceCollection services, ITenantService tenantService) where TImplementation : class, TInterface where TInterface : class
-        //{
-        //    services.AddSingleton<TInterface, TImplementation>((s) =>
-        //    {
-
-        //        var tenant = tenantService.GetCurrentTenant<TTenantKey>();
-        //        var key = new TenantSingletonKey<string>
-        //        {
-        //            TenantId = tenant.TenantId.ToString(),
-        //            Interface = typeof(TInterface)
-        //        };
-        //        var impl = _cache.GetOrAdd(key, (u) =>
-        //        {
-        //            var implementation = ActivatorUtilities.CreateInstance<TImplementation>(services);
-        //            return implementation;
-        //        });
-        //        return (TImplementation)impl;
-        //    });
-        //    return services;
-        //}
-    }
-
-    class TenantSingletonKey<T>
-    {
-        public T TenantId { get; set; }
-        public Type Interface { get; set; }
-    }
-    //class ExampleService
-    //{
-
-    //}
-
-    //public class TenantServiceProvider : IServiceProvider
-    //{
-    //    private readonly IServiceCollection _services;
-    //    private readonly ITenantService _tenantService;
-    //    private readonly IServiceProvider _globalProvider;
-    //    private readonly System.Collections.Generic.Dictionary<Guid, IServiceScope> scopes = new System.Collections.Generic.Dictionary<Guid, IServiceScope>();
-
-
-    //    public TenantServiceProvider(IServiceCollection services, ITenantService tenantService)
-    //    {
-    //        _services = services;
-    //        _tenantService = tenantService;
-    //        _globalProvider = services.BuildServiceProvider();
-    //    }
-
-    //    public object GetService(Type serviceType)
-    //    {
-    //        var tenant = _tenantService.GetCurrentTenant().GetAwaiter().GetResult();
-    //        if (tenant == null)
-    //        {
-    //            return _globalProvider.GetRequiredService(serviceType);
-    //        }
-    //        throw new NotImplementedException();
-    //    }
-    //}
+    }    
 }

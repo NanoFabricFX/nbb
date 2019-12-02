@@ -1,4 +1,6 @@
-﻿namespace NBB.MultiTenant.Abstractions
+﻿using System;
+
+namespace NBB.MultiTenant.Abstractions
 {
     public class TenantOptions
     {
@@ -6,7 +8,8 @@
         public string EncryptionKey { get; set; }
         public bool UseConnectionStringEncryption { get; set; }
 
-        public TenantStoreType TenantStoreType { get; set; } = TenantStoreType.Sql;
+        public Type TenantStoreType { get; set; } = Type.GetType("NBB.MultiTenant.Stores.DatabaseStore");
+        public Type CryptoServiceType { get; set; } = Type.GetType("NBB.MultiTenant.Stores.DatabaseStore");
 
         public TenantIdentificationOptions IdentificationOptions { get; set; } = new TenantIdentificationOptions();
         public bool UseDefaultValueOnInsert { get; set; } = true;        
@@ -30,11 +33,5 @@
             }
             UseConnectionStringEncryption = useConnectionStringEncryption;
         }
-    }
-
-    public enum TenantStoreType
-    {
-        Sql = 0,
-        AzureBlob = 1
     }
 }

@@ -1,23 +1,24 @@
-﻿using NBB.MultiTenant.Abstractions.Services;
+﻿using NBB.MultiTenant.Abstractions;
+using NBB.MultiTenant.Abstractions.Services;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NBB.MultiTenant.Services
+namespace NBB.MultiTenant.Cryptography
 {
     public class AesCryptoService : ICryptoService
     {
-        private readonly string _cryptoKet;
+        private readonly string _cryptoKey;
 
-        public AesCryptoService(string cryptoKet)
+        public AesCryptoService(TenantOptions tenantOptions)
         {
-            _cryptoKet = cryptoKet;
+            _cryptoKey = tenantOptions.EncryptionKey;
         }
 
         public string Encrypt(string text)
         {
-            var key = Encoding.UTF8.GetBytes(_cryptoKet);
+            var key = Encoding.UTF8.GetBytes(_cryptoKey);
 
             using (var aesAlg = Aes.Create())
             {
@@ -52,7 +53,7 @@ namespace NBB.MultiTenant.Services
         {
             var fullCipher = Convert.FromBase64String(cipherText);
             var (iv, cipher) = RiffleDeshuffle(fullCipher);
-            var key = Encoding.UTF8.GetBytes(_cryptoKet);
+            var key = Encoding.UTF8.GetBytes(_cryptoKey);
 
             using (var aesAlg = Aes.Create())
             {

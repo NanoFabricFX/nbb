@@ -6,7 +6,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using NBB.MultiTenant.Abstractions;
 
-namespace NBB.MultiTenant.Repositories
+namespace NBB.MultiTenant.Stores.DatabaseStore
 {
     public class DatabaseTenantStore : ITenantStore
     {
@@ -18,9 +18,9 @@ namespace NBB.MultiTenant.Repositories
         private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, SourceIp = @SourceIp, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
         private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
-        public DatabaseTenantStore(string connectionString)
+        public DatabaseTenantStore(TenantOptions tenantOptions)
         {
-            _connectionString = connectionString;
+            _connectionString = tenantOptions.ConnectionString;
         }
 
         private IDbConnection Connection => new SqlConnection(_connectionString);

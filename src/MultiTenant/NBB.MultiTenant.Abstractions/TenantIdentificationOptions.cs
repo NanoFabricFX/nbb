@@ -12,7 +12,6 @@ namespace NBB.MultiTenant.Abstractions
         public List<Type> RegisteredServices { get; protected set; } = new List<Type>();
         public TenantIdentificationOptions WithDefaultOptions()
         {
-            Console.WriteLine("WithDefaultOptions");
             IdentitificationTypes = new List<TenantIdentificationType> { TenantIdentificationType.Headers, TenantIdentificationType.Host, TenantIdentificationType.Ip, TenantIdentificationType.MessagingHeaders };
             return this;
         }
@@ -83,7 +82,7 @@ namespace NBB.MultiTenant.Abstractions
 
         public bool ShoudUse(TenantIdentificationType type)
         {
-            return this.IdentitificationTypes.Contains(type);
+            return IdentitificationTypes.Contains(type);
         }
     }    
 }

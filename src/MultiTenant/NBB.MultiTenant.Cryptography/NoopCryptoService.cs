@@ -1,8 +1,8 @@
 ﻿using NBB.MultiTenant.Abstractions.Services;
 
-namespace NBB.MultiTenant.Services
+namespace NBB.MultiTenant.Cryptography
 {
-    class NoopCryptoService : ICryptoService
+    public class NoopCryptoService : ICryptoService
     {
         public string Decrypt(string cipherText)
         {
