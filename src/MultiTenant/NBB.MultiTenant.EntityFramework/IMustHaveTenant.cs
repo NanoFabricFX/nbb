@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NBB.MultiTenant.EntityFramework
+﻿namespace NBB.MultiTenant.EntityFramework
 {
     public interface IMustHaveTenant<T>
     {

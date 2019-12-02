@@ -28,9 +28,7 @@ namespace NBB.MultiTenant.EntityFramework
         public virtual DbSet<User<T>> Users { get; set; }
         public virtual DbSet<UserFeature<T>> UserFeatures { get; set; }
         public virtual DbSet<UserRight<T>> UserRights { get; set; }
-        public virtual DbSet<UserRole<T>> UserRoles { get; set; }
-
-        
+        public virtual DbSet<UserRole<T>> UserRoles { get; set; }        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +37,6 @@ namespace NBB.MultiTenant.EntityFramework
             modelBuilder.Entity<Feature<T>>(entity =>
             {
                 entity.HasKey(e => e.FeatureId);
-                entity.Property(e => e.FeatureId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -70,7 +67,7 @@ namespace NBB.MultiTenant.EntityFramework
             modelBuilder.Entity<Role<T>>(entity =>
             {
                 entity.HasKey(e => e.RoleId);
-                entity.Property(e => e.RoleId);//.HasDefaultValueSql("(newid())");
+                
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -101,7 +98,7 @@ namespace NBB.MultiTenant.EntityFramework
             modelBuilder.Entity<Subscription<T>>(entity =>
             {
                 entity.HasKey(e => e.SubscriptionId);
-                entity.Property(e => e.SubscriptionId);//.HasDefaultValueSql("(newid())");
+                entity.Property(e => e.SubscriptionId);
 
                 entity.Property(e => e.Code)
                     .IsRequired()
@@ -115,8 +112,6 @@ namespace NBB.MultiTenant.EntityFramework
             modelBuilder.Entity<SubscriptionFeature<T>>(entity =>
             {
                 entity.HasKey(e => new { e.SubcriptionId, e.FeatureId });
-
-                entity.Property(e => e.FeatureValue).HasColumnType("decimal(18, 2)");
 
                 entity.HasOne(d => d.Feature)
                     .WithMany(p => p.SubscriptionFeatures)
@@ -133,8 +128,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<Tenant<T>>(entity =>
             {
-                entity.HasKey(e => e.TenantId);
-                entity.Property(e => e.TenantId);//.HasDefaultValueSql("(newid())");
+                entity.HasKey(e => e.TenantId);                
 
                 entity.Property(e => e.ConnectionString).IsRequired();
 
@@ -155,8 +149,6 @@ namespace NBB.MultiTenant.EntityFramework
             {
                 entity.HasKey(e => new { e.TenantId, e.FeatureId });
 
-                entity.Property(e => e.FeatureValue).HasColumnType("decimal(18, 2)");
-
                 entity.HasOne(d => d.Feature)
                     .WithMany(p => p.TenantFeatures)
                     .HasForeignKey(d => d.FeatureId)
@@ -173,10 +165,6 @@ namespace NBB.MultiTenant.EntityFramework
             modelBuilder.Entity<TenantSubcription<T>>(entity =>
             {
                 entity.HasKey(e => new { e.TenantId, e.SubcriptionId, e.StartDate });
-
-                entity.Property(e => e.StartDate).HasColumnType("datetime");
-
-                entity.Property(e => e.EndDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Subcription)
                     .WithMany(p => p.TenantSubcriptions)
@@ -210,13 +198,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             modelBuilder.Entity<User<T>>(entity =>
             {
-                //entity.HasIndex(e => e.Email)
-                //    .HasName("iUsers_Email")
-                //    .IsUnique();
-
                 entity.HasKey(e => e.UserId);
-
-                entity.Property(e => e.UserId);//.HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Email)
                     .IsRequired()
@@ -243,8 +225,6 @@ namespace NBB.MultiTenant.EntityFramework
             {
                 entity.HasKey(e => new { e.FeatureId, e.UserId });
 
-                entity.Property(e => e.FeatureValue).HasColumnType("decimal(18, 2)");
-
                 entity.HasOne(d => d.Feature)
                     .WithMany(p => p.UserFeatures)
                     .HasForeignKey(d => d.FeatureId)
@@ -261,7 +241,7 @@ namespace NBB.MultiTenant.EntityFramework
             modelBuilder.Entity<UserRight<T>>(entity =>
             {
                 entity.HasKey(x => x.UserRightId);
-                entity.Property(e => e.UserRightId);//.HasDefaultValueSql("(newid())");
+                entity.Property(e => e.UserRightId);
 
                 entity.Property(e => e.Code)
                     .IsRequired()

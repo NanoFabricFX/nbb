@@ -17,7 +17,6 @@ namespace NBB.MultiTenant.EntityFramework
         private readonly Tenant<T> _tenant;
         private readonly ICryptoService _cryptoService;
         private readonly ITenantService _tenantService;
-        private readonly string _connectionString = null;
         private readonly TenantOptions _tenantOptions;
 
         private readonly MethodInfo optionalFilterMethod = typeof(MultiTenantDbContext<T>).GetMethod("GetOptionalFilter");
@@ -31,7 +30,6 @@ namespace NBB.MultiTenant.EntityFramework
             _tenantOptions = tenantOptions;
 
             _tenant = _tenantService.GetCurrentTenant<T>();
-            _connectionString = _tenant.ConnectionString;
 
             if (_tenantOptions.IsReadOnly)
             {
@@ -69,10 +67,6 @@ namespace NBB.MultiTenant.EntityFramework
 
             mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant<T>).IsAssignableFrom(p.ClrType)).ToList());
 
-            //if (_tenantOptions.UseDatabaseAnnotations)
-            //{
-            //    mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation("IMustHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMustHaveTenant").Value)));
-            //}
             mandatory = mandatory.Distinct().ToList();
 
             var tenantId = _tenant.TenantId;
@@ -141,37 +135,6 @@ namespace NBB.MultiTenant.EntityFramework
             return toCheck;
         }
 
-        protected List<T> GetViolationsByAnnotations()
-        {
-            // Get all the entity types information contained in the DbContext class, ...
-            var mandatory = Model
-                .GetEntityTypes()
-                .Where(p => p.FindAnnotation("IMustHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMustHaveTenant").Value))
-                .Select(x => x.ClrType)
-                .ToList();
-
-            var optional = Model
-                .GetEntityTypes()
-                .Where(p => p.FindAnnotation("IMightHaveTenant") != null && Convert.ToBoolean(p.FindAnnotation("IMightHaveTenant").Value)) // findproperty din IEntityType. asa crapa
-                .Select(x => x.ClrType)
-                .ToList();
-
-            var optionalIds = (from e in ChangeTracker.Entries()
-                               where optional.Contains(e.Entity.GetType()) && !((IMayHaveTenant<T>)e.Entity).TenantId.IsNullOrDefault<T>()
-                               select ((IMayHaveTenant<T>)e.Entity).TenantId)
-                      .Distinct()
-                      .ToList();
-
-            var mandatoryIds = (from e in ChangeTracker.Entries()
-                                where mandatory.Contains(e.Entity.GetType())
-                                select ((IMustHaveTenant<T>)e.Entity).TenantId)
-                       .Distinct()
-                       .ToList();
-
-            var toCheck = optionalIds.Union(mandatoryIds).ToList();
-            return toCheck;
-        }
-
         protected void UpdateDefaultTenantId()
         {
             if (_tenant == null)
@@ -202,21 +165,21 @@ namespace NBB.MultiTenant.EntityFramework
                 return;
             }
 
-            if (!_tenantOptions.RestrictCrossTenantAccess)
-            {
-                return;
-            }
-
             var toCheck = GetViolations();
+
+            if (toCheck.Count >= 1 && _tenantOptions.IsReadOnly)
+            {
+                throw new Exception("Read only Db context");
+            }
 
             if (toCheck.Count == 0)
             {
                 return;
             }
 
-            if (toCheck.Count >= 1 && _tenantOptions.IsReadOnly)
+            if (!_tenantOptions.RestrictCrossTenantAccess)
             {
-                throw new Exception("Read only Db context");
+                return;
             }
 
             if (toCheck.Count > 1)
@@ -238,10 +201,6 @@ namespace NBB.MultiTenant.EntityFramework
             {
                 optionsBuilder.UseSqlServer(_cryptoService.Decrypt(_tenant.ConnectionString));
             }
-            //else if (_tenant.DatabaseClient == DatabaseClient.MySql)
-            //{
-            //    optionsBuilder.UseMySQL(_cryptoService.Decrypt(_tenant.ConnectionString));
-            //}
             else
             {
                 throw new Exception($"Unsupported database type {_tenant.DatabaseClient}");
@@ -271,16 +230,6 @@ namespace NBB.MultiTenant.EntityFramework
             optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMayHaveTenant<T>).IsAssignableFrom(p.GetType())).ToList());
             mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant<T>).IsAssignableFrom(p.ClrType)).ToList());
 
-            //if (_tenantOptions.UseDatabaseInheritance)
-            //{
-            //    optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMayHaveTenant<T>).IsAssignableFrom(p.GetType())).ToList());
-            //    mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant<T>).IsAssignableFrom(p.ClrType)).ToList());
-            //}
-            //if (_tenantOptions.UseDatabaseAnnotations)
-            //{
-            //    optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation(nameof(IMayHaveTenant<T>)) != null && Convert.ToBoolean(p.FindAnnotation(nameof(IMayHaveTenant<T>)).Value)));
-            //    mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => p.FindAnnotation(nameof(IMustHaveTenant<T>)) != null && Convert.ToBoolean(p.FindAnnotation(nameof(IMustHaveTenant<T>)).Value)));
-            //}
             optional = optional.Distinct().ToList();
             mandatory = mandatory.Distinct().ToList();
 

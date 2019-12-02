@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NBB.MultiTenant.EntityFramework
+﻿namespace NBB.MultiTenant.EntityFramework
 {
     public static class ObjectExtensions
     {
