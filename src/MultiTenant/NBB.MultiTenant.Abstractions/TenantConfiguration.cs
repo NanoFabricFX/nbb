@@ -2,27 +2,26 @@
 
 namespace NBB.MultiTenant.Abstractions
 {
-    public class TenantOptions
+    public class TenantConfiguration
     {
         public string ConnectionString { get; set; }
         public string EncryptionKey { get; set; }
         public bool UseConnectionStringEncryption { get; set; }
-
         public Type TenantStoreType { get; set; } = Type.GetType("NBB.MultiTenant.Stores.DatabaseStore");
-        public Type CryptoServiceType { get; set; } = Type.GetType("NBB.MultiTenant.Stores.DatabaseStore");
+        public Type CryptoServiceType { get; set; } = Type.GetType("NBB.MultiTenant.Cryptography.AesCryptoService");
 
-        public TenantIdentificationOptions IdentificationOptions { get; set; } = new TenantIdentificationOptions();
-        public bool UseDefaultValueOnInsert { get; set; } = true;        
+        public ITenantIdentificationOptions IdentificationOptions { get; set; }
+        public bool UseDefaultValueOnSave { get; set; } = true;        
         public bool RestrictCrossTenantAccess { get; set; } = true;
 
         public bool IsReadOnly { get; set; }
-
-        public TenantOptions()
+        public Action<Tenant> ConfigureConnection { get; set; }
+        public TenantConfiguration()
         {
 
         }
 
-        public TenantOptions(string connectionString, string encryptionKey, bool useConnectionStringEncryption = false, TenantIdentificationOptions tenantIdentificationOptions = null, bool useCache = false)
+        public TenantConfiguration(string connectionString, string encryptionKey, bool useConnectionStringEncryption = false, ITenantIdentificationOptions tenantIdentificationOptions = null, bool useCache = false)
         {
             ConnectionString = connectionString;
             EncryptionKey = encryptionKey;
@@ -31,6 +30,7 @@ namespace NBB.MultiTenant.Abstractions
             {
                 IdentificationOptions = tenantIdentificationOptions;
             }
+
             UseConnectionStringEncryption = useConnectionStringEncryption;
         }
     }

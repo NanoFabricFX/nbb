@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NBB.MultiTenant.EntityFramework.Entities;
+using NBB.MultiTenant.EntityFramework.Administration.Entities;
 
-namespace NBB.MultiTenant.EntityFramework
+namespace NBB.MultiTenant.EntityFramework.Administration
 {
-    public partial class TenantDbContext<T> : DbContext
+    public abstract class TenantDbContext<T> : DbContext
     {
         public TenantDbContext(DbContextOptions<TenantDbContext<T>> options)
             : base(options)
@@ -134,9 +134,7 @@ namespace NBB.MultiTenant.EntityFramework
 
                 entity.Property(e => e.Host).HasMaxLength(255);
 
-                entity.Property(e => e.Name).HasMaxLength(255);
-
-                entity.Property(e => e.SourceIp).HasMaxLength(40);
+                entity.Property(e => e.Name).HasMaxLength(255);                
 
                 entity.HasOne(d => d.Owner)
                     .WithMany(p => p.Tenants)
@@ -278,6 +276,6 @@ namespace NBB.MultiTenant.EntityFramework
             OnModelCreatingPartial(modelBuilder);
         }
 
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+        public abstract void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

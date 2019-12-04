@@ -20,21 +20,21 @@ namespace NBB.MultiTenant.EntityFramework
         private readonly Tenant<T> _tenant;
         private readonly ICryptoService _cryptoService;
         private readonly ITenantService _tenantService;
-        private readonly TenantOptions _tenantOptions;
+        private readonly TenantConfiguration _tenantConfiguration;
 
         private readonly MethodInfo optionalFilterMethod = typeof(MultiTenantDbContext<T>).GetMethod("GetOptionalFilter");
         private readonly MethodInfo mandatoryFilterMethod = typeof(MultiTenantDbContext<T>).GetMethod("GetMandatoryFilter");
         private readonly MethodInfo setDefaultValueMethod = typeof(MultiTenantDbContext<T>).GetMethod("SetDefaultValue");
 
-        public MultiTenantDbContext(ICryptoService cryptoService, ITenantService tenantService, TenantOptions tenantOptions)
+        public MultiTenantDbContext(ICryptoService cryptoService, ITenantService tenantService, TenantConfiguration tenantConfiguration)
         {
             _cryptoService = cryptoService;
             _tenantService = tenantService;
-            _tenantOptions = tenantOptions;
+            _tenantConfiguration = tenantConfiguration;
 
             _tenant = _tenantService.GetCurrentTenant<T>();
 
-            if (_tenantOptions.IsReadOnly)
+            if (_tenantConfiguration.IsReadOnly)
             {
                 ChangeTracker.AutoDetectChangesEnabled = false;
                 ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -170,7 +170,7 @@ namespace NBB.MultiTenant.EntityFramework
 
             var toCheck = GetViolations();
 
-            if (toCheck.Count >= 1 && _tenantOptions.IsReadOnly)
+            if (toCheck.Count >= 1 && _tenantConfiguration.IsReadOnly)
             {
                 throw new Exception("Read only Db context");
             }
@@ -180,7 +180,7 @@ namespace NBB.MultiTenant.EntityFramework
                 return;
             }
 
-            if (!_tenantOptions.RestrictCrossTenantAccess)
+            if (!_tenantConfiguration.RestrictCrossTenantAccess)
             {
                 return;
             }
@@ -200,30 +200,23 @@ namespace NBB.MultiTenant.EntityFramework
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (_tenant.DatabaseClient == DatabaseClient.SqlClient)
-            {
-                optionsBuilder.UseSqlServer(_cryptoService.Decrypt(_tenant.ConnectionString));
-            }
-            else
-            {
-                throw new Exception($"Unsupported database type {_tenant.DatabaseClient}");
-            }
-
+            _tenantConfiguration.ConfigureConnection(_tenant);
             base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            OnTenantModelCreating(modelBuilder);
             if (_tenant == null)
             {
                 return;
             }
-            if (_tenantOptions.UseDefaultValueOnInsert)
+            if (_tenantConfiguration.UseDefaultValueOnSave)
             {
                 ApplyDefaultValues(modelBuilder);
             }
 
-            if (!_tenantOptions.RestrictCrossTenantAccess)
+            if (!_tenantConfiguration.RestrictCrossTenantAccess)
             {
                 base.OnModelCreating(modelBuilder);
                 return;
@@ -242,6 +235,8 @@ namespace NBB.MultiTenant.EntityFramework
             base.OnModelCreating(modelBuilder);
         }
 
+        protected abstract void OnTenantModelCreating(ModelBuilder modelBuilder);
+
         #region Write side
         public override int SaveChanges()
         {
@@ -250,17 +245,17 @@ namespace NBB.MultiTenant.EntityFramework
                 return base.SaveChanges();
             }
 
-            if (_tenantOptions.IsReadOnly)
+            if (_tenantConfiguration.IsReadOnly)
             {
                 throw new Exception("Readonly");
             }
 
-            if (_tenantOptions.UseDefaultValueOnInsert)
+            if (_tenantConfiguration.UseDefaultValueOnSave)
             {
                 UpdateDefaultTenantId();
             }
 
-            if (_tenantOptions.RestrictCrossTenantAccess)
+            if (_tenantConfiguration.RestrictCrossTenantAccess)
             {
                 ThrowIfMultipleTenants();
             }
@@ -275,17 +270,17 @@ namespace NBB.MultiTenant.EntityFramework
                 return base.SaveChanges(acceptAllChangesOnSuccess);
             }
 
-            if (_tenantOptions.IsReadOnly)
+            if (_tenantConfiguration.IsReadOnly)
             {
                 throw new Exception("Readonly");
             }
 
-            if (_tenantOptions.UseDefaultValueOnInsert)
+            if (_tenantConfiguration.UseDefaultValueOnSave)
             {
                 UpdateDefaultTenantId();
             }
 
-            if (_tenantOptions.RestrictCrossTenantAccess)
+            if (_tenantConfiguration.RestrictCrossTenantAccess)
             {
                 ThrowIfMultipleTenants();
             }
@@ -300,17 +295,17 @@ namespace NBB.MultiTenant.EntityFramework
                 return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
 
-            if (_tenantOptions.IsReadOnly)
+            if (_tenantConfiguration.IsReadOnly)
             {
                 throw new Exception("Readonly");
             }
 
-            if (_tenantOptions.UseDefaultValueOnInsert)
+            if (_tenantConfiguration.UseDefaultValueOnSave)
             {
                 UpdateDefaultTenantId();
             }
 
-            if (_tenantOptions.RestrictCrossTenantAccess)
+            if (_tenantConfiguration.RestrictCrossTenantAccess)
             {
                 ThrowIfMultipleTenants();
             }
@@ -325,17 +320,17 @@ namespace NBB.MultiTenant.EntityFramework
                 return base.SaveChangesAsync(cancellationToken);
             }
 
-            if (_tenantOptions.IsReadOnly)
+            if (_tenantConfiguration.IsReadOnly)
             {
                 throw new Exception("Readonly");
             }
 
-            if (_tenantOptions.UseDefaultValueOnInsert)
+            if (_tenantConfiguration.UseDefaultValueOnSave)
             {
                 UpdateDefaultTenantId();
             }
 
-            if (_tenantOptions.RestrictCrossTenantAccess)
+            if (_tenantConfiguration.RestrictCrossTenantAccess)
             {
                 ThrowIfMultipleTenants();
             }

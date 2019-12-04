@@ -11,12 +11,12 @@ namespace NBB.MultiTenant.Services
     {
         private readonly string _tenantIdKey = "tenantId";
         private readonly ITenantStore _store;
-        private readonly TenantOptions _tenantOptions;
+        private readonly TenantConfiguration _tenantOptions;
         private readonly IHttpContextAccessor _accessor;
 
         public TenantIdentificationType TenantIdentificationType => TenantIdentificationType.Headers;
 
-        public HeadersIdentificationService(ITenantStore store, TenantOptions tenantOptions, IHttpContextAccessor accessor)
+        public HeadersIdentificationService(ITenantStore store, TenantConfiguration tenantOptions, IHttpContextAccessor accessor)
         {
             _store = store;
             _tenantOptions = tenantOptions;

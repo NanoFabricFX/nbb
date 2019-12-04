@@ -12,9 +12,9 @@ namespace NBB.MultiTenant.Messaging
     {
         private readonly IMessageBusPublisher _inner;
         private readonly ITenantService _tenantService;
-        private readonly TenantOptions _tenantOptions;
+        private readonly TenantConfiguration _tenantOptions;
 
-        public MultiTenantPublisherDecorator(IMessageBusPublisher inner, ITenantService tenantService, TenantOptions tenantOptions)
+        public MultiTenantPublisherDecorator(IMessageBusPublisher inner, ITenantService tenantService, TenantConfiguration tenantOptions)
         {
             _inner = inner;
             _tenantService = tenantService;

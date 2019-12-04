@@ -1,7 +1,9 @@
-﻿namespace NBB.MultiTenant.EntityFramework.Abstractions
+﻿using NBB.MultiTenant.Abstractions;
+
+namespace NBB.MultiTenant.EntityFramework.Abstractions
 {
-    public interface IMayHaveTenant<T>
+    public interface IMayHaveTenant<T>: ITenant<T>
     {
-        T TenantId { get; set; }
+        new T TenantId { get; set; }
     }
 }

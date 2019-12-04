@@ -1,22 +1,23 @@
-﻿using NBB.MultiTenant.Abstractions.Services;
+﻿using NBB.MultiTenant.Abstractions;
+using NBB.MultiTenant.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 
-namespace NBB.MultiTenant.Abstractions
+namespace NBB.MultiTenant
 {
-    public class TenantIdentificationOptions
+    public class TenantIdentificationOptions : ITenantIdentificationOptions
     {
         public string TenantHeadersKey { get; set; } = "tenantId";
         public string TenantMessagingKey { get; set; } = "nbb-tenant-id";
         public List<TenantIdentificationType> IdentitificationTypes { get; protected set; } = new List<TenantIdentificationType>();
         public List<Type> RegisteredServices { get; protected set; } = new List<Type>();
-        public TenantIdentificationOptions WithDefaultOptions()
+        public ITenantIdentificationOptions WithDefaultOptions()
         {
-            IdentitificationTypes = new List<TenantIdentificationType> { TenantIdentificationType.Headers, TenantIdentificationType.MessagingHeaders, TenantIdentificationType.Host, TenantIdentificationType.Ip, TenantIdentificationType.HostPort };
+            IdentitificationTypes = new List<TenantIdentificationType> { TenantIdentificationType.Headers, TenantIdentificationType.MessagingHeaders, TenantIdentificationType.Host, TenantIdentificationType.HostPort };
             return this;
         }
 
-        public TenantIdentificationOptions AddIdentificationService<T>() where T: ITenantIdentificationService
+        public ITenantIdentificationOptions AddIdentificationService<T>() where T : ITenantIdentificationService
         {
             var type = typeof(T);
             if (!RegisteredServices.Contains(type))
@@ -26,7 +27,7 @@ namespace NBB.MultiTenant.Abstractions
             return this;
         }
 
-        public TenantIdentificationOptions RemoveIdentificationService<T>() where T : ITenantIdentificationService
+        public ITenantIdentificationOptions RemoveIdentificationService<T>() where T : ITenantIdentificationService
         {
             var type = typeof(T);
             if (RegisteredServices.Contains(type))
@@ -36,7 +37,7 @@ namespace NBB.MultiTenant.Abstractions
             return this;
         }
 
-        public TenantIdentificationOptions AddIdentificationService(TenantIdentificationType identificationType)
+        public ITenantIdentificationOptions AddIdentificationService(TenantIdentificationType identificationType)
         {
             if (!IdentitificationTypes.Contains(identificationType))
             {
@@ -45,7 +46,7 @@ namespace NBB.MultiTenant.Abstractions
             return this;
         }
 
-        public TenantIdentificationOptions AddIdentificationService(IEnumerable<TenantIdentificationType> identificationTypes)
+        public ITenantIdentificationOptions AddIdentificationService(IEnumerable<TenantIdentificationType> identificationTypes)
         {
             foreach (var identificationType in identificationTypes)
             {
@@ -58,7 +59,7 @@ namespace NBB.MultiTenant.Abstractions
             return this;
         }
 
-        public TenantIdentificationOptions RemoveIdentificationService(TenantIdentificationType identificationType)
+        public ITenantIdentificationOptions RemoveIdentificationService(TenantIdentificationType identificationType)
         {
             if (IdentitificationTypes.Contains(identificationType))
             {
@@ -67,16 +68,16 @@ namespace NBB.MultiTenant.Abstractions
             return this;
         }
 
-        public TenantIdentificationOptions RemoveIdentificationService(IEnumerable<TenantIdentificationType> identificationTypes)
+        public ITenantIdentificationOptions RemoveIdentificationService(IEnumerable<TenantIdentificationType> identificationTypes)
         {
-            foreach(var identificationType in identificationTypes)
+            foreach (var identificationType in identificationTypes)
             {
                 if (IdentitificationTypes.Contains(identificationType))
                 {
                     IdentitificationTypes.Remove(identificationType);
                 }
             }
-            
+
             return this;
         }
 
@@ -84,5 +85,5 @@ namespace NBB.MultiTenant.Abstractions
         {
             return IdentitificationTypes.Contains(type);
         }
-    }    
+    }
 }

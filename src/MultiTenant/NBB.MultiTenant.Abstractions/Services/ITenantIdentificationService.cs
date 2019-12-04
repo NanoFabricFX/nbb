@@ -16,8 +16,7 @@ namespace NBB.MultiTenant.Abstractions.Services
         Custom = 0,
         Host = 1,
         MessagingHeaders = 2,
-        Headers = 3,
-        Ip = 4,
-        HostPort = 5
+        Headers = 3,        
+        HostPort = 4
     }
 }

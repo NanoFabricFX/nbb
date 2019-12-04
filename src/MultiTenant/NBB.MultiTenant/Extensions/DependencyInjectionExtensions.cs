@@ -17,48 +17,45 @@ namespace NBB.MultiTenant.Extensions
         /// <param name="connectionString">Connection string or blob storage parameters</param>
         /// <param name="encryptionKey">Key to encrypt connection string</param>
         /// <returns>Services collection</returns>
-        public static IServiceCollection AddMultiTenantServices<TKey>(this IServiceCollection services, TenantOptions tenantOptions)
+        public static IServiceCollection AddMultiTenantServices<TKey>(this IServiceCollection services, TenantConfiguration tenantConfiguration)
         {
 
-            services.AddSingleton(typeof(ITenantStore), tenantOptions.TenantStoreType);
-            services.AddSingleton(typeof(ICryptoService), tenantOptions.CryptoServiceType);
-
-            services.AddScoped<ITenantConnectionFactory<TKey>, TenantConnectionFactory<TKey>>();
-            
+            services.AddSingleton(typeof(ITenantStore), tenantConfiguration.TenantStoreType);
+            services.AddSingleton(typeof(ICryptoService), tenantConfiguration.CryptoServiceType);
 
             services.AddSingleton<ITenantService, TenantService>();
 
-            if (tenantOptions.IdentificationOptions.RegisteredServices?.Count == 0 && tenantOptions.IdentificationOptions.IdentitificationTypes?.Count == 0)
+            if (tenantConfiguration.IdentificationOptions.RegisteredServices?.Count == 0 && tenantConfiguration.IdentificationOptions.IdentitificationTypes?.Count == 0)
             {
-                tenantOptions.IdentificationOptions.WithDefaultOptions();
+                tenantConfiguration.IdentificationOptions.WithDefaultOptions();
             }
 
-            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.Headers))
+            if (tenantConfiguration.IdentificationOptions.ShoudUse(TenantIdentificationType.Headers))
             {
-                tenantOptions.IdentificationOptions.AddIdentificationService<HeadersIdentificationService>();
+                tenantConfiguration.IdentificationOptions.AddIdentificationService<HeadersIdentificationService>();
             }
 
-            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.Host))
+            if (tenantConfiguration.IdentificationOptions.ShoudUse(TenantIdentificationType.Host))
             {
-                tenantOptions.IdentificationOptions.AddIdentificationService<HostIdentificationService>();
+                tenantConfiguration.IdentificationOptions.AddIdentificationService<HostIdentificationService>();
             }
 
-            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.MessagingHeaders))
+            if (tenantConfiguration.IdentificationOptions.ShoudUse(TenantIdentificationType.MessagingHeaders))
             {
-                tenantOptions.IdentificationOptions.AddIdentificationService<MessagingIdentificationService>();
+                tenantConfiguration.IdentificationOptions.AddIdentificationService<MessagingIdentificationService>();
             }
 
-            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.Ip))
+            if (tenantConfiguration.IdentificationOptions.ShoudUse(TenantIdentificationType.HostPort))
             {
-                tenantOptions.IdentificationOptions.AddIdentificationService<IpIdentificationService>();
+                tenantConfiguration.IdentificationOptions.AddIdentificationService<HostPortIdentificationService>();
             }
 
-            if (tenantOptions.IdentificationOptions.ShoudUse(TenantIdentificationType.HostPort))
+            if (tenantConfiguration.ConfigureConnection == null)
             {
-                tenantOptions.IdentificationOptions.AddIdentificationService<HostPortIdentificationService>();
+                throw new Exception("Must configure the 'ConfigureConnection action'");
             }
 
-            foreach (var serviceType in tenantOptions.IdentificationOptions.RegisteredServices)
+            foreach (var serviceType in tenantConfiguration.IdentificationOptions.RegisteredServices)
             {
                 services.AddSingleton(typeof(ITenantIdentificationService), serviceType);
             }
@@ -69,7 +66,7 @@ namespace NBB.MultiTenant.Extensions
                 return connectionFactory.CreateDbConnection().GetAwaiter().GetResult();
             });
 
-            services.AddSingleton(s => tenantOptions);
+            services.AddSingleton(s => tenantConfiguration);
             TenantSession<TKey> factory(IServiceProvider s)
             {
                 using (var scope = s.CreateScope())

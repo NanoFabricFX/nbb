@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace NBB.MultiTenant.EntityFramework.Entities
+namespace NBB.MultiTenant.EntityFramework.Administration.Entities
 {
     public partial class Tenant<T>
     {
@@ -16,10 +15,9 @@ namespace NBB.MultiTenant.EntityFramework.Entities
         public T TenantId { get; set; }
         public string Name { get; set; }
         public string Host { get; set; }
-        public string SourceIp { get; set; }
         public string ConnectionString { get; set; }
         public int DatabaseClient { get; set; }
-        public Guid OwnerId { get; set; }
+        public T OwnerId { get; set; }
 
         public virtual User<T> Owner { get; set; }
         public virtual ICollection<TenantFeature<T>> TenantFeatures { get; set; }

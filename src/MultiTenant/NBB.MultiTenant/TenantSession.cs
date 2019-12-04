@@ -1,73 +1,34 @@
 ﻿using NBB.MultiTenant.Abstractions;
-using System;
 
 namespace NBB.MultiTenant
 {
     public class TenantSession<T> : ITenantSession<T>
     {
-        private bool _isUserImpersonated;
-        private bool _isTenantImpersonated;
-        private string _userId;
-
-        private string _impersonatorUserId;
         private Tenant<T> _tenant;
-
-        public string UserId
-        {
-            get
-            {
-                if (_isUserImpersonated)
-                {
-                    return _impersonatorUserId;
-                }
-                return _userId;
-            }
-            set
-            {
-                _userId = value;
-            }
-        }
-        
-
-        //public bool IsHostUser => !string.IsNullOrEmpty(UserId) && GetTenant<T> == null;
-
-        //public bool IsTenantUser => !string.IsNullOrEmpty(UserId) && Tenant<T> != null;
-
-        public bool IsLoggedIn => !string.IsNullOrEmpty(UserId);
-
-        //public string ConnectionString => Tenant?.ConnectionString;
-
-        public string ImpersonatorUserId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public string ConnectionString => throw new NotImplementedException();
-
-        public bool IsHostUser => throw new NotImplementedException();
-
-        public bool IsTenantUser => throw new NotImplementedException();
-
-        public void Dispose()
-        {
-            UserId = null;
-        }
-
+        private Tenant<T> _impersonatedTenant;        
         public Tenant<T> GetImpersonatedTenant()
         {
-            throw new NotImplementedException();
+            return _impersonatedTenant;
         }
 
         public Tenant<T> GetTenant()
         {
-            return _tenant;
+            return _impersonatedTenant ?? _tenant;
+        }
+
+        Tenant ITenantSession.GetTenant()
+        {
+            return _impersonatedTenant?? _tenant;
         }
 
         public void SetImpersonatedTenant(Tenant<T> tenant)
         {
-            throw new NotImplementedException();
+            _impersonatedTenant = tenant;
         }
 
         public void SetImpersonatedTenant(Tenant tenant)
         {
-            throw new NotImplementedException();
+            _impersonatedTenant = tenant as Tenant<T>;
         }
 
         public void SetTenant(Tenant<T> tenant)
@@ -82,12 +43,7 @@ namespace NBB.MultiTenant
 
         Tenant ITenantSession.GetImpersonatedTenant()
         {
-            throw new NotImplementedException();
-        }
-
-        Tenant ITenantSession.GetTenant()
-        {
-            return _tenant;
+            return _impersonatedTenant;
         }
     }
 }

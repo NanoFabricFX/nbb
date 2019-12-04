@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace NBB.MultiTenant.EntityFramework.Entities
+namespace NBB.MultiTenant.EntityFramework.Administration.Entities
 {
     public partial class Subscription<T>
     {
@@ -11,7 +10,7 @@ namespace NBB.MultiTenant.EntityFramework.Entities
             TenantSubcriptions = new HashSet<TenantSubcription<T>>();
         }
 
-        public Guid SubscriptionId { get; set; }
+        public T SubscriptionId { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
 

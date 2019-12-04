@@ -1,4 +1,4 @@
-﻿namespace NBB.MultiTenant.EntityFramework.Entities
+﻿namespace NBB.MultiTenant.EntityFramework.Administration.Entities
 {
     public partial class RoleUserRight<T>
     {

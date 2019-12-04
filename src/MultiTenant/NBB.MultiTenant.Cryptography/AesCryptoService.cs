@@ -11,7 +11,7 @@ namespace NBB.MultiTenant.Cryptography
     {
         private readonly string _cryptoKey;
 
-        public AesCryptoService(TenantOptions tenantOptions)
+        public AesCryptoService(TenantConfiguration tenantOptions)
         {
             _cryptoKey = tenantOptions.EncryptionKey;
         }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NBB.MultiTenant.EntityFramework.Entities
+﻿namespace NBB.MultiTenant.EntityFramework.Administration.Entities
 {
     public partial class UserFeature<T>
     {

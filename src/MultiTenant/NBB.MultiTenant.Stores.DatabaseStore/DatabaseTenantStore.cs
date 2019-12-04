@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -14,11 +13,11 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
 
         private const string TenantExactFilteredQueryFormat = "SELECT * FROM Tenants WHERE {0} = @{0}";
         private const string TenantLikeFilteredQueryFormat = "SELECT * FROM Tenants WHERE @{0} LIKE {0}";
-        private const string TenantInsertFormat = "Insert into Tenants ( TenantId, Name, Host, SourceIp, ConnectionString, DatabaseClient) values(@TenantIdId, @Name, @Host, @SourceIp, @ConnectionString, @DatabaseClient)";
-        private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, SourceIp = @SourceIp, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
+        private const string TenantInsertFormat = "Insert into Tenants ( TenantId, Name, Host, ConnectionString, DatabaseClient) values(@TenantIdId, @Name, @Host, @ConnectionString, @DatabaseClient)";
+        private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
         private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
-        public DatabaseTenantStore(TenantOptions tenantOptions)
+        public DatabaseTenantStore(TenantConfiguration tenantOptions)
         {
             _connectionString = tenantOptions.ConnectionString;
         }
@@ -35,7 +34,7 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                 }
 
                 var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.TenantId));
-                var result = await connection.QueryAsync<Tenant<T>>(query, new { TenantId = id });
+                var result = await connection.QueryAsync<DatabaseTenant<T>>(query, new { TenantId = id });
                 return result.FirstOrDefault();
             }
         }
@@ -49,8 +48,8 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.Name));
-                var result = await connection.QueryAsync<Tenant<T>>(query, new { Name = name });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(DatabaseTenant<T>.Name));
+                var result = await connection.QueryAsync<DatabaseTenant<T>>(query, new { Name = name });
                 return result.FirstOrDefault();
             }
         }
@@ -64,52 +63,8 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.Host));
-                var result = await connection.QueryAsync<Tenant<T>>(query, new { Host = host });
-                return result.FirstOrDefault();
-            }
-        }
-
-        public async Task<Tenant<T>> GetBySourceIp<T>(string sourceIp)
-        {
-            if (string.IsNullOrWhiteSpace(sourceIp))
-            {
-                throw new ArgumentNullException(nameof(sourceIp));
-            }
-
-            using (var connection = Connection)
-            {
-                if (connection.State == ConnectionState.Closed)
-                {
-                    connection.Open();
-                }
-
-                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant<T>.SourceIp));
-                var result = await connection.QueryAsync<Tenant<T>>(query, new { SourceIp = sourceIp });
-                return result.FirstOrDefault();
-            }
-        }
-
-        public async Task<Tenant<T>> GetByHostPort<T>(string host, string ip, int localPort, int remotePort)
-        {
-            var sourceIp = string.IsNullOrEmpty(ip) ? host : ip;
-
-            if (string.IsNullOrWhiteSpace(sourceIp))
-            {
-                throw new ArgumentNullException(nameof(sourceIp));
-            }
-
-            var ipAndPort = $"{sourceIp}:{localPort}";
-
-            using (var connection = Connection)
-            {
-                if (connection.State == ConnectionState.Closed)
-                {
-                    connection.Open();
-                }
-
-                var query = string.Format(TenantLikeFilteredQueryFormat, nameof(Tenant<T>.SourceIp));
-                var result = await connection.QueryAsync<Tenant<T>>(query, new { SourceIp = ipAndPort });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(DatabaseTenant<T>.Host));
+                var result = await connection.QueryAsync<DatabaseTenant<T>>(query, new { Host = host });
                 return result.FirstOrDefault();
             }
         }
