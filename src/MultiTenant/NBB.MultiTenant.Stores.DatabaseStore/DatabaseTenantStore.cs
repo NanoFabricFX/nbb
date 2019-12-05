@@ -12,12 +12,11 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
         private readonly string _connectionString;
 
         private const string TenantExactFilteredQueryFormat = "SELECT * FROM Tenants WHERE {0} = @{0}";
-        private const string TenantLikeFilteredQueryFormat = "SELECT * FROM Tenants WHERE @{0} LIKE {0}";
-        private const string TenantInsertFormat = "Insert into Tenants ( TenantId, Name, Host, ConnectionString, DatabaseClient) values(@TenantIdId, @Name, @Host, @ConnectionString, @DatabaseClient)";
+        private const string TenantInsertFormat = "Insert into Tenants (TenantId, Name, Host, ConnectionString, DatabaseClient) values(@TenantIdId, @Name, @Host, @ConnectionString, @DatabaseClient)";
         private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
         private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
-        public DatabaseTenantStore(TenantConfiguration tenantOptions)
+        public DatabaseTenantStore(DatabaseTenantConfiguration tenantOptions)
         {
             _connectionString = tenantOptions.ConnectionString;
         }

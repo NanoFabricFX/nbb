@@ -50,11 +50,6 @@ namespace NBB.MultiTenant.Extensions
                 tenantConfiguration.IdentificationOptions.AddIdentificationService<HostPortIdentificationService>();
             }
 
-            if (tenantConfiguration.ConfigureConnection == null)
-            {
-                throw new Exception("Must configure the 'ConfigureConnection action'");
-            }
-
             foreach (var serviceType in tenantConfiguration.IdentificationOptions.RegisteredServices)
             {
                 services.AddSingleton(typeof(ITenantIdentificationService), serviceType);
