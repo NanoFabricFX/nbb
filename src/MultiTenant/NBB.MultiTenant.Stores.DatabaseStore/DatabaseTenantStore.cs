@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using NBB.MultiTenant.Abstractions;
+using NBB.MultiTenant.Abstractions.Services;
 
 namespace NBB.MultiTenant.Stores.DatabaseStore
 {
     public class DatabaseTenantStore : ITenantStore
     {
+        private readonly ICryptoService _cryptoService;
         private readonly string _connectionString;
 
         private const string TenantExactFilteredQueryFormat = "SELECT * FROM Tenants WHERE {0} = @{0}";
@@ -16,12 +18,13 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
         private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
         private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
-        public DatabaseTenantStore(DatabaseTenantConfiguration tenantOptions)
+        public DatabaseTenantStore(DatabaseTenantConfiguration tenantOptions, ICryptoService cryptoService)
         {
             _connectionString = tenantOptions.ConnectionString;
+            _cryptoService = cryptoService;            
         }
 
-        private IDbConnection Connection => new SqlConnection(_connectionString);
+        private IDbConnection Connection => new SqlConnection(_cryptoService.Decrypt(_connectionString));
 
         public async Task<Tenant<T>> Get<T>(T id)
         {
@@ -105,6 +108,6 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                 var count = await Connection.ExecuteAsync(TenantDeleteFormat, tenant);
                 return count == 1;
             }
-        }
+        }        
     }
 }

@@ -18,8 +18,7 @@ namespace NBB.MultiTenant.Extensions
         /// <param name="encryptionKey">Key to encrypt connection string</param>
         /// <returns>Services collection</returns>
         public static IServiceCollection AddMultiTenantServices<TKey>(this IServiceCollection services, TenantConfiguration tenantConfiguration)
-        {
-
+        {            
             services.AddSingleton(typeof(ITenantStore), tenantConfiguration.TenantStoreType);
             services.AddSingleton(typeof(ICryptoService), tenantConfiguration.CryptoServiceType);
 
