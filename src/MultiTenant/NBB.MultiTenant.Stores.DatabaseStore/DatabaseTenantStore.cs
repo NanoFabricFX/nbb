@@ -4,27 +4,24 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using NBB.MultiTenant.Abstractions;
-using NBB.MultiTenant.Abstractions.Services;
 
 namespace NBB.MultiTenant.Stores.DatabaseStore
 {
     public class DatabaseTenantStore : ITenantStore
     {
-        private readonly ICryptoService _cryptoService;
         private readonly string _connectionString;
 
-        private const string TenantExactFilteredQueryFormat = "SELECT * FROM Tenants WHERE {0} = @{0}";
+        private const string TenantExactFilteredQueryFormat = "SELECT TenantIdId, Name, Host, ConnectionString, DatabaseClient FROM Tenants WHERE {0} = @{0}";
         private const string TenantInsertFormat = "Insert into Tenants (TenantId, Name, Host, ConnectionString, DatabaseClient) values(@TenantIdId, @Name, @Host, @ConnectionString, @DatabaseClient)";
         private const string TenantUpdateFormat = "Update Tenants set Name=  @Name, Host = @Host, ConnectionString = @ConnectionString, DatabaseClient = @DatabaseClient where TenantIdId = @TenantIdId";
         private const string TenantDeleteFormat = "Delete from Tenants where Id = @Id";
 
-        public DatabaseTenantStore(DatabaseTenantConfiguration tenantOptions, ICryptoService cryptoService)
+        public DatabaseTenantStore(TenantConnectionConfiguration tenantConnectionConfiguration)
         {
-            _connectionString = tenantOptions.ConnectionString;
-            _cryptoService = cryptoService;            
+            _connectionString = tenantConnectionConfiguration.ConnectionString;
         }
 
-        private IDbConnection Connection => new SqlConnection(_cryptoService.Decrypt(_connectionString));
+        private IDbConnection Connection => new SqlConnection(_connectionString);
 
         public async Task<Tenant<T>> Get<T>(T id)
         {

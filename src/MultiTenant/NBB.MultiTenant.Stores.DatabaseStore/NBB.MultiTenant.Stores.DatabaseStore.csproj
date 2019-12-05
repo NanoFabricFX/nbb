@@ -26,8 +26,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\NBB.Core.DependencyInjection\NBB.Core.DependencyInjection.csproj" />
-    <ProjectReference Include="..\..\Messaging\NBB.Messaging.Abstractions\NBB.Messaging.Abstractions.csproj" />
     <ProjectReference Include="..\NBB.MultiTenant.Abstractions\NBB.MultiTenant.Abstractions.csproj" />
+    <ProjectReference Include="..\NBB.MultiTenant.Data.Abstractions\NBB.MultiTenant.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\NBB.MultiTenant\NBB.MultiTenant.csproj" />
   </ItemGroup>
 
 </Project>

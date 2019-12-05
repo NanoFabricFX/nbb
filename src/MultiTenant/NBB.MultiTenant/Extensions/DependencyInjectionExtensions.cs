@@ -13,15 +13,11 @@ namespace NBB.MultiTenant.Extensions
         /// <summary>
         /// Adds to services collection the required services to make the multitenancy work
         /// </summary>
-        /// <param name="services">Services collection</param>
-        /// <param name="connectionString">Connection string or blob storage parameters</param>
-        /// <param name="encryptionKey">Key to encrypt connection string</param>
         /// <returns>Services collection</returns>
-        public static IServiceCollection AddMultiTenantServices<TKey>(this IServiceCollection services, TenantConfiguration tenantConfiguration)
+        public static IServiceCollection AddMultiTenantServices<TKey, TStoreType>(this IServiceCollection services, TenantConfiguration tenantConfiguration) 
+            where TStoreType: class, ITenantStore            
         {            
-            services.AddSingleton(typeof(ITenantStore), tenantConfiguration.TenantStoreType);
-            services.AddSingleton(typeof(ICryptoService), tenantConfiguration.CryptoServiceType);
-
+            services.AddSingleton<ITenantStore, TStoreType>();
             services.AddSingleton<ITenantService, TenantService>();
 
             if (tenantConfiguration.IdentificationOptions.RegisteredServices?.Count == 0 && tenantConfiguration.IdentificationOptions.IdentitificationTypes?.Count == 0)

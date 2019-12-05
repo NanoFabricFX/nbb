@@ -1,5 +1,4 @@
-﻿using NBB.MultiTenant.Abstractions;
-using NBB.MultiTenant.Abstractions.Services;
+﻿using NBB.MultiTenant.Abstractions.Services;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -9,11 +8,11 @@ namespace NBB.MultiTenant.Cryptography
 {
     public class AesCryptoService : ICryptoService
     {
-        private readonly string _cryptoKey;
+        private readonly string _cryptoKey;        
 
-        public AesCryptoService(TenantConfiguration tenantOptions)
+        public AesCryptoService(TenantEncryptionConfiguration tenantEncryptionConfiguration)
         {
-            _cryptoKey = tenantOptions.EncryptionKey;
+            _cryptoKey = tenantEncryptionConfiguration.EncryptionKey;
         }
 
         public string Encrypt(string text)

@@ -1,7 +1,7 @@
 ﻿using NBB.MultiTenant.Abstractions;
 using System;
 
-namespace MultiTenant.Data.Abstractions
+namespace NBB.MultiTenant.Data.Abstractions
 {
     public class TenantDatabaseConfiguration
     {

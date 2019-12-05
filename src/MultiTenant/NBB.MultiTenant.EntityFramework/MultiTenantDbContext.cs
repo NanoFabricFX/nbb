@@ -12,7 +12,7 @@ using System.Linq;
 using NBB.MultiTenant.EntityFramework.Abstractions;
 using NBB.MultiTenant.EntityFramework.Extensions;
 using NBB.MultiTenant.EntityFramework.Exceptions;
-using MultiTenant.Data.Abstractions;
+using NBB.MultiTenant.Data.Abstractions;
 
 namespace NBB.MultiTenant.EntityFramework
 {
