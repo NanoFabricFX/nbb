@@ -1,12 +1,10 @@
-﻿namespace NBB.MultiTenant.Abstractions
-{
-    public class Tenant<T>: Tenant, ITenant<T>
-    {
-        public new T TenantId { get; set; }
-    }
+﻿using System;
 
+namespace NBB.MultiTenant.Abstractions
+{
     public class Tenant
     {
-        public object TenantId { get; set; }
+        public Guid TenantId { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using NBB.MultiTenant.Abstractions.Services;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
-using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -16,22 +15,21 @@ using NBB.MultiTenant.Data.Abstractions;
 
 namespace NBB.MultiTenant.EntityFramework
 {
-    public abstract class MultiTenantDbContext<T> : DbContext
+    public abstract class MultiTenantDbContext : DbContext
     {
-        private readonly Tenant<T> _tenant;        
+        private readonly Tenant _tenant;        
         private readonly ITenantService _tenantService;        
         private readonly TenantDatabaseConfiguration _tenantDatabaseConfiguration;
 
-        private readonly MethodInfo optionalFilterMethod = typeof(MultiTenantDbContext<T>).GetMethod("GetOptionalFilter");
-        private readonly MethodInfo mandatoryFilterMethod = typeof(MultiTenantDbContext<T>).GetMethod("GetMandatoryFilter");
-        private readonly MethodInfo setDefaultValueMethod = typeof(MultiTenantDbContext<T>).GetMethod("SetDefaultValue");
+        //private readonly MethodInfo optionalFilterMethod = typeof(MultiTenantDbContext).GetMethod("GetOptionalFilter");
+        //private readonly MethodInfo mandatoryFilterMethod = typeof(MultiTenantDbContext).GetMethod("GetMandatoryFilter");
 
         public MultiTenantDbContext(ITenantService tenantService, TenantDatabaseConfiguration tenantDatabaseConfiguration)
         {
             _tenantService = tenantService;
             _tenantDatabaseConfiguration = tenantDatabaseConfiguration;
 
-            _tenant = _tenantService.GetCurrentTenant<T>();
+            _tenant = _tenantService.GetCurrentTenantAsync().GetAwaiter().GetResult();
 
             if (_tenantDatabaseConfiguration.IsReadOnly)
             {
@@ -42,21 +40,21 @@ namespace NBB.MultiTenant.EntityFramework
 
         #region base
 
-        public Expression<Func<T, bool>> GetMandatoryFilter<T>(ModelBuilder modelBuilder, T tenantId) where T : class, IMustHaveTenant<T>
+        public Expression<Func<T, bool>> GetMandatoryFilter<T>(ModelBuilder modelBuilder, T tenantId) where T : class, IMustHaveTenant
         {
             Expression<Func<T, bool>> filter = t => t.TenantId.Equals(tenantId);
             return filter;
         }
 
-        public Expression<Func<T, bool>> GetOptionalFilter<T>(ModelBuilder modelBuilder, Guid tenantId) where T : class, IMayHaveTenant<T>
+        public Expression<Func<T, bool>> GetOptionalFilter<T>(ModelBuilder modelBuilder, Guid tenantId) where T : class, IMayHaveTenant
         {
             Expression<Func<T, bool>> filter = t => !t.TenantId.IsNullOrDefault();
             return filter;
         }
 
-        public void SetDefaultValue<T>(ModelBuilder modelBuilder, Guid tenantId) where T : class, IMustHaveTenant<T>
+        public void SetDefaultValue<T>(ModelBuilder modelBuilder, T tenantId) where T : class, IMustHaveTenant
         {
-            modelBuilder.Entity<T>().Property(nameof(IMustHaveTenant<T>.TenantId)).HasDefaultValue(tenantId);
+            modelBuilder.Entity<T>().Property(nameof(IMustHaveTenant.TenantId)).HasDefaultValue(tenantId);
         }
 
         protected void ApplyDefaultValues(ModelBuilder modelBuilder)
@@ -67,7 +65,7 @@ namespace NBB.MultiTenant.EntityFramework
             }
             var mandatory = new List<IMutableEntityType>();
 
-            mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant<T>).IsAssignableFrom(p.ClrType)).ToList());
+            mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant).IsAssignableFrom(p.ClrType)).ToList());
 
             mandatory = mandatory.Distinct().ToList();
 
@@ -75,25 +73,12 @@ namespace NBB.MultiTenant.EntityFramework
 
             mandatory.ToList().ForEach(t =>
             {
-                var generic = setDefaultValueMethod.MakeGenericMethod(t.ClrType);
-                var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
-            });
-        }
+                //var generic = setDefaultValueMethod.MakeGenericMethod(t.ClrType);
+                //var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
 
-        protected void ApplyDefaultValues(ModelBuilder modelBuilder, List<IMutableEntityType> optional, List<IMutableEntityType> mandatory)
-        {
-            if (_tenant == null)
-            {
-                return;
-            }
-            var tenantId = _tenant.TenantId;
-
-            mandatory.ToList().ForEach(t =>
-            {
-                var generic = setDefaultValueMethod.MakeGenericMethod(t.ClrType);
-                var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
-            });
-        }
+                SetDefaultValue(modelBuilder, tenantId as dynamic);
+            });            
+        }        
 
         protected virtual void AddQueryFilters(ModelBuilder modelBuilder, List<IMutableEntityType> optional, List<IMutableEntityType> mandatory)
         {
@@ -106,30 +91,34 @@ namespace NBB.MultiTenant.EntityFramework
 
             optional.ForEach(t =>
             {
-                var generic = optionalFilterMethod.MakeGenericMethod(t.ClrType);
-                var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
-                modelBuilder.Entity(t.ClrType).HasQueryFilter((LambdaExpression)expr);
+                var filter = GetOptionalFilter(modelBuilder, tenantId as dynamic);
+                modelBuilder.Entity(t.ClrType).HasQueryFilter((LambdaExpression)filter);
+                //var generic = optionalFilterMethod.MakeGenericMethod(t.ClrType);
+                //var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
+                //modelBuilder.Entity(t.ClrType).HasQueryFilter((LambdaExpression)expr);
             });
 
             mandatory.ToList().ForEach(t =>
             {
-                var generic = mandatoryFilterMethod.MakeGenericMethod(t.ClrType);
-                var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
-                modelBuilder.Entity(t.ClrType).HasQueryFilter((LambdaExpression)expr);
+                var filter = GetMandatoryFilter(modelBuilder, tenantId as dynamic);
+                modelBuilder.Entity(t.ClrType).HasQueryFilter((LambdaExpression)filter);
+                //var generic = mandatoryFilterMethod.MakeGenericMethod(t.ClrType);
+                //var expr = generic.Invoke(this, new object[] { modelBuilder, tenantId });
+                //modelBuilder.Entity(t.ClrType).HasQueryFilter((LambdaExpression)expr);
             });
         }
 
-        protected List<T> GetViolationsByInheritance()
+        protected List<Guid> GetViolationsByInheritance()
         {
             var optionalIds = (from e in ChangeTracker.Entries()
-                               where e.Entity is IMayHaveTenant<T> && !((IMayHaveTenant<T>)e.Entity).TenantId.IsNullOrDefault()
-                               select ((IMayHaveTenant<T>)e.Entity).TenantId)
+                               where e.Entity is IMayHaveTenant && !((IMayHaveTenant)e.Entity).TenantId.IsNullOrDefault()
+                               select ((IMayHaveTenant)e.Entity).TenantId)
                        .Distinct()
                        .ToList();
 
             var mandatoryIds = (from e in ChangeTracker.Entries()
-                                where e.Entity is IMustHaveTenant<T>
-                                select ((IMustHaveTenant<T>)e.Entity).TenantId)
+                                where e.Entity is IMustHaveTenant
+                                select ((IMustHaveTenant)e.Entity).TenantId)
                        .Distinct()
                        .ToList();
 
@@ -145,15 +134,15 @@ namespace NBB.MultiTenant.EntityFramework
             }
 
             var list = ChangeTracker.Entries()
-                .Where(e => e.Entity is IMustHaveTenant<T> && ((IMustHaveTenant<T>)e.Entity).TenantId.IsNullOrDefault<T>())
-                .Select(e => ((IMustHaveTenant<T>)e.Entity));
+                .Where(e => e.Entity is IMustHaveTenant && ((IMustHaveTenant)e.Entity).TenantId.IsNullOrDefault())
+                .Select(e => ((IMustHaveTenant)e.Entity));
             foreach (var e in list)
             {
                 e.TenantId = _tenant.TenantId;
             }
         }
 
-        protected List<T> GetViolations()
+        protected List<Guid> GetViolations()
         {
             var list = GetViolationsByInheritance();
 
@@ -186,12 +175,12 @@ namespace NBB.MultiTenant.EntityFramework
 
             if (toCheck.Count > 1)
             {
-                throw new CrossTenantUpdateException<T>(toCheck);
+                throw new CrossTenantUpdateException(toCheck);
             }
 
             if (!toCheck.First().Equals(_tenant.TenantId))
             {
-                throw new CrossTenantUpdateException<T>(toCheck);
+                throw new CrossTenantUpdateException(toCheck);
             }
         }
 
@@ -222,8 +211,8 @@ namespace NBB.MultiTenant.EntityFramework
             }
             var optional = new List<IMutableEntityType>();
             var mandatory = new List<IMutableEntityType>();
-            optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMayHaveTenant<T>).IsAssignableFrom(p.GetType())).ToList());
-            mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant<T>).IsAssignableFrom(p.ClrType)).ToList());
+            optional.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMayHaveTenant).IsAssignableFrom(p.GetType())).ToList());
+            mandatory.AddRange(modelBuilder.Model.GetEntityTypes().Where(p => typeof(IMustHaveTenant).IsAssignableFrom(p.ClrType)).ToList());
 
             optional = optional.Distinct().ToList();
             mandatory = mandatory.Distinct().ToList();

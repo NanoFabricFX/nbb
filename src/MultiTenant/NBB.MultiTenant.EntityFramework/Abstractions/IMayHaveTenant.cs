@@ -1,9 +1,9 @@
-﻿using NBB.MultiTenant.Abstractions;
+﻿using System;
 
 namespace NBB.MultiTenant.EntityFramework.Abstractions
 {
-    public interface IMayHaveTenant<T>: ITenant<T>
+    public interface IMayHaveTenant
     {
-        new T TenantId { get; set; }
+        public Guid TenantId { get; set; }
     }
 }

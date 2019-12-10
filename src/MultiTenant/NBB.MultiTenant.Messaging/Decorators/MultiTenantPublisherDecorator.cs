@@ -6,29 +6,29 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NBB.MultiTenant.Messaging
+namespace NBB.MultiTenant.Messaging.Decorators
 {
     public class MultiTenantPublisherDecorator<TKey> : IMessageBusPublisher
     {
         private readonly IMessageBusPublisher _inner;
         private readonly ITenantService _tenantService;
-        private readonly TenantConfiguration _tenantOptions;
+        private readonly TenantMessagingConfiguration _tenantMessagingConfiguration;
 
-        public MultiTenantPublisherDecorator(IMessageBusPublisher inner, ITenantService tenantService, TenantConfiguration tenantOptions)
+        public MultiTenantPublisherDecorator(IMessageBusPublisher inner, ITenantService tenantService, TenantMessagingConfiguration tenantMessagingConfiguration)
         {
             _inner = inner;
             _tenantService = tenantService;
-            _tenantOptions = tenantOptions;
+            _tenantMessagingConfiguration = tenantMessagingConfiguration;
         }
 
         public Task PublishAsync<T>(T message, CancellationToken cancellationToken, Action<MessagingEnvelope> customizer = null, string topicName = null)
         {
             void NewCustomizer(MessagingEnvelope outgoingEnvelope)
             {
-                var tenant =  _tenantService.GetCurrentTenant<TKey>();
+                var tenant = _tenantService.GetCurrentTenantAsync().GetAwaiter().GetResult();
                 if (tenant != null)
                 {
-                    outgoingEnvelope.SetHeader(_tenantOptions.IdentificationOptions.TenantMessagingKey, tenant.TenantId.ToString());
+                    outgoingEnvelope.SetHeader(_tenantMessagingConfiguration.TenantMessagingKey, tenant.TenantId.ToString());
                 }
 
                 customizer?.Invoke(outgoingEnvelope);

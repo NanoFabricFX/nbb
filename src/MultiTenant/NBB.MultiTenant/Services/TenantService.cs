@@ -19,50 +19,6 @@ namespace NBB.MultiTenant.Services
             _tenantStore = tenantStore;
         }
 
-        public async Task<bool> AddAsync<T>(Tenant<T> tenant)
-        {
-            return await _tenantStore.Add(tenant);
-        }
-
-        public void ImpersonateUser<T>(T userId, Action a)
-        {
-            //using (var scope = ss.CreateScope())
-            //{
-            //    var session = scope.ServiceProvider.GetRequiredService<ITenantSession>();
-            //    session.ImpersonatedTenant = new Tenant { TenantId = Guid.NewGuid() };
-            //    a();
-            //}
-        }
-
-        public async Task<bool> DeleteAsync<T>(Tenant<T> tenant)
-        {
-            return await _tenantStore.Delete(tenant);
-        }
-
-        public async Task<bool> EditAsync<T>(Tenant<T> tenant)
-        {
-            return await _tenantStore.Edit(tenant);
-        }
-
-        public Tenant GetCurrentTenant()
-        {
-            if (!_identificationServices.Any())
-            {
-                throw new Exception("No identification services configured");
-            }
-
-            foreach (var service in _identificationServices)
-            {
-                var tenant = service.GetCurrentTenant();
-                if (tenant != null)
-                {
-                    return tenant;
-                }
-            }
-
-            return null;
-        }
-
         public async Task<Tenant> GetCurrentTenantAsync()
         {
             if (!_identificationServices.Any())
@@ -72,47 +28,10 @@ namespace NBB.MultiTenant.Services
 
             foreach (var service in _identificationServices)
             {
-                var tenant = await service.GetCurrentTenantAsync();
-                if (tenant != null)
+                var tenantId = await service.GetCurrentTenantIdentificationAsync();
+                if (tenantId != null)
                 {
-                    return tenant;
-                }
-            }
-
-            return null;
-        }
-
-        public Tenant<T> GetCurrentTenant<T>()
-        {
-            if (!_identificationServices.Any())
-            {
-                throw new Exception("No identification services configured");
-            }
-
-            foreach (var service in _identificationServices)
-            {
-                var tenant = service.GetCurrentTenant<T>();
-                if (tenant != null)
-                {
-                    return tenant as Tenant<T>;
-                }
-            }
-
-            return null;
-        }
-
-        public async Task<Tenant<T>> GetCurrentTenantAsync<T>()
-        {
-            if (!_identificationServices.Any())
-            {
-                throw new Exception("No identification services configured");
-            }
-
-            foreach (var service in _identificationServices)
-            {
-                var tenant = await service.GetCurrentTenantAsync<T>();
-                if (tenant != null)
-                {
+                    var tenant = await _tenantStore.GetAsync(tenantId);
                     return tenant;
                 }
             }

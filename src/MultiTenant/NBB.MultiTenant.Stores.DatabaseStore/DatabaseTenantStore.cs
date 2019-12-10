@@ -1,9 +1,10 @@
-﻿using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using NBB.MultiTenant.Abstractions;
+using System;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NBB.MultiTenant.Stores.DatabaseStore
 {
@@ -23,7 +24,7 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
 
         private IDbConnection Connection => new SqlConnection(_connectionString);
 
-        public async Task<Tenant<T>> Get<T>(T id)
+        public async Task<Tenant> GetAsync(Guid id)
         {
             using (var connection = Connection)
             {
@@ -32,13 +33,13 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant<T>.TenantId));
-                var result = await connection.QueryAsync<DatabaseTenant<T>>(query, new { TenantId = id });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(Tenant.TenantId));
+                var result = await connection.QueryAsync<DatabaseTenant>(query, new { TenantId = id });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<Tenant<T>> GetByName<T>(string name)
+        public async Task<Tenant> GetByNameAsync(string name)
         {
             using (var connection = Connection)
             {
@@ -47,28 +48,13 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                     connection.Open();
                 }
 
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(DatabaseTenant<T>.Name));
-                var result = await connection.QueryAsync<DatabaseTenant<T>>(query, new { Name = name });
+                var query = string.Format(TenantExactFilteredQueryFormat, nameof(DatabaseTenant.Name));
+                var result = await connection.QueryAsync<DatabaseTenant>(query, new { Name = name });
                 return result.FirstOrDefault();
             }
         }
 
-        public async Task<Tenant<T>> GetByHost<T>(string host)
-        {
-            using (var connection = Connection)
-            {
-                if (connection.State == ConnectionState.Closed)
-                {
-                    connection.Open();
-                }
-
-                var query = string.Format(TenantExactFilteredQueryFormat, nameof(DatabaseTenant<T>.Host));
-                var result = await connection.QueryAsync<DatabaseTenant<T>>(query, new { Host = host });
-                return result.FirstOrDefault();
-            }
-        }
-
-        public async Task<bool> Add<T>(Tenant<T> tenant)
+        public async Task<bool> AddAsync(Tenant tenant)
         {
             using (var connection = Connection)
             {
@@ -81,7 +67,7 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
             }
         }
 
-        public async Task<bool> Edit<T>(Tenant<T> tenant)
+        public async Task<bool> EditAsync(Tenant tenant)
         {
             using (var connection = Connection)
             {
@@ -94,7 +80,7 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
             }
         }
 
-        public async Task<bool> Delete<T>(Tenant<T> tenant)
+        public async Task<bool> DeleteAsync(Tenant tenant)
         {
             using (var connection = Connection)
             {
@@ -105,6 +91,6 @@ namespace NBB.MultiTenant.Stores.DatabaseStore
                 var count = await Connection.ExecuteAsync(TenantDeleteFormat, tenant);
                 return count == 1;
             }
-        }        
+        }
     }
 }
