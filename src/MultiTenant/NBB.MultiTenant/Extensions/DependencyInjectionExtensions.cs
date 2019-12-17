@@ -14,7 +14,7 @@ namespace NBB.MultiTenant.Extensions
         /// Adds to services collection the required services to make the multitenancy work
         /// </summary>
         /// <returns>Services collection</returns>
-        public static IServiceCollection AddMultiTenantServices<TKey, TStoreType>(this IServiceCollection services, IEnumerable<ITenantIdentificationService> identificationServices) 
+        public static IServiceCollection AddMultiTenantServices<TKey, TStoreType>(this IServiceCollection services) 
             where TStoreType: class, ITenantStore            
         {            
             services.AddSingleton<ITenantStore, TStoreType>();
