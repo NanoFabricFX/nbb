@@ -110,7 +110,7 @@ namespace NBB.MultiTenancy.Identification.Tests
             // Arrange
             const string tenantToken = "mock token";
             _firstResolver.Setup(r => r.GetTenantToken()).Returns(Task.FromResult(tenantToken));
-            var tenantId = Guid.NewGuid();
+            var tenantId = (Guid?)Guid.NewGuid();
             _identifier.Setup(i => i.GetTenantIdAsync(It.IsAny<string>())).Returns(Task.FromResult(tenantId));
             var sut = new TenantIdentificationStrategy(new List<ITenantTokenResolver>() { _firstResolver.Object, _secondResolver.Object, _thirdResolver.Object }, _identifier.Object);
 

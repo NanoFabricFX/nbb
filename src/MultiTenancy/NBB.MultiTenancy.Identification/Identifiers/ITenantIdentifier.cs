@@ -5,6 +5,6 @@ namespace NBB.MultiTenancy.Identification.Identifiers
 {
     public interface ITenantIdentifier
     {
-        Task<Guid> GetTenantIdAsync(string tenantToken);
+        Task<Guid?> GetTenantIdAsync(string tenantToken);
     }
 }

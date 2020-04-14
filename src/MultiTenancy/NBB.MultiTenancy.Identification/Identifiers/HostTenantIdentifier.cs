@@ -13,10 +13,10 @@ namespace NBB.MultiTenancy.Identification.Identifiers
             _hostTenantRepository = hostTenantRepository;
         }
 
-        public async Task<Guid> GetTenantIdAsync(string tenantToken)
+        public async Task<Guid?> GetTenantIdAsync(string tenantToken)
         {
             var tenant = await _hostTenantRepository.GetByHost(tenantToken);
-            return tenant.TenantId;
+            return tenant?.TenantId;
         }
     }
 }

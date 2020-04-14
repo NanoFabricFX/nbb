@@ -48,6 +48,8 @@ namespace NBB.MultiTenancy.Identification.Tests.Services
         {
             // Arrange
             const string tenantToken = "mock token";
+            Guid? tenantId = Guid.NewGuid();
+            _identifier.Setup(i => i.GetTenantIdAsync(It.IsAny<string>())).ReturnsAsync(tenantId);
             _firstResolver.Setup(r => r.GetTenantToken()).Returns(Task.FromResult<string>(null));
             _secondResolver.Setup(r => r.GetTenantToken()).Returns(Task.FromResult(tenantToken));
             _thirdResolver.Setup(r => r.GetTenantToken()).Throws<Exception>();
@@ -85,6 +87,8 @@ namespace NBB.MultiTenancy.Identification.Tests.Services
         {
             // Arrange
             const string tenantToken = "mock token";
+            Guid? tenantId = Guid.NewGuid();
+            _identifier.Setup(i => i.GetTenantIdAsync(It.IsAny<string>())).ReturnsAsync(tenantId);
             _firstResolver.Setup(r => r.GetTenantToken()).Returns(Task.FromResult<string>(null));
             _secondResolver.Setup(r => r.GetTenantToken()).Returns(Task.FromResult(tenantToken));
             _thirdResolver.Setup(r => r.GetTenantToken()).Throws<Exception>();

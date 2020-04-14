@@ -11,9 +11,9 @@ namespace NBB.MultiTenancy.Identification.Tests.Extensions
 {
     public class DependencyInjectionExtensionsTests
     {
-        class FirstIdentifier : ITenantIdentifier
+        private class FirstIdentifier : ITenantIdentifier
         {
-            public Task<Guid> GetTenantIdAsync(string tenantToken)
+            public Task<Guid?> GetTenantIdAsync(string tenantToken)
             {
                 throw new NotImplementedException();
             }

@@ -5,10 +5,9 @@ namespace NBB.MultiTenancy.Identification.Identifiers
 {
     public class IdTenantIdentifier : ITenantIdentifier
     {
-        public Task<Guid> GetTenantIdAsync(string tenantToken)
+        public Task<Guid?> GetTenantIdAsync(string tenantToken)
         {
-            var tenantId = Guid.Parse(tenantToken);
-            return Task.FromResult(tenantId);
+            return Guid.TryParse(tenantToken, out var tenantId) ? Task.FromResult((Guid?)tenantId) : null;
         }
     }
 }
